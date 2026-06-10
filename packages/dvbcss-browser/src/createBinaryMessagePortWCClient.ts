@@ -12,11 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { BinarySerialiser, WallClockClientProtocol, WallClockClientProtocolOptions } from "@iimrd/dvbcss-node";
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { MessagePortAdaptor } from "./MessagePortAdaptor.js";
+import {
+  BinarySerialiser,
+  WallClockClientProtocol,
+  WallClockClientProtocolOptions,
+} from '@iimrd/dvbcss-node';
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import { MessagePortAdaptor } from './MessagePortAdaptor.js';
 
 /**
  * Factory function that creates a Wall Clock client that communicates over
@@ -31,16 +35,12 @@ import { MessagePortAdaptor } from "./MessagePortAdaptor.js";
  * @returns The MessagePortAdaptor wrapping the whole client.
  */
 export const createBinaryMessagePortWCClient = (
-    port: MessagePort,
-    wallClock: CorrelatedClock,
-    clientOptions: WallClockClientProtocolOptions = {},
+  port: MessagePort,
+  wallClock: CorrelatedClock,
+  clientOptions: WallClockClientProtocolOptions = {},
 ): MessagePortAdaptor => {
-    return new MessagePortAdaptor(
-        new WallClockClientProtocol(
-            wallClock,
-            BinarySerialiser,
-            clientOptions,
-        ),
-        port,
-    );
+  return new MessagePortAdaptor(
+    new WallClockClientProtocol(wallClock, BinarySerialiser, clientOptions),
+    port,
+  );
 };

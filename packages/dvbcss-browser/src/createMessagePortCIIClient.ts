@@ -12,10 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { AdaptorWrapper, CIIClientProtocol, CIIClientProtocolOptions } from "@iimrd/dvbcss-node";
-import { MessagePortAdaptor } from "./MessagePortAdaptor.js";
+import { AdaptorWrapper, CIIClientProtocol, CIIClientProtocolOptions } from '@iimrd/dvbcss-node';
+import { MessagePortAdaptor } from './MessagePortAdaptor.js';
 
 /**
  * Factory function that creates a CII client that communicates over
@@ -30,11 +30,11 @@ import { MessagePortAdaptor } from "./MessagePortAdaptor.js";
  * @returns An AdaptorWrapper that emits "change" events when CII state updates.
  */
 export const createMessagePortCIIClient = (
-    port: MessagePort,
-    clientOptions: CIIClientProtocolOptions = {},
+  port: MessagePort,
+  clientOptions: CIIClientProtocolOptions = {},
 ): AdaptorWrapper => {
-    const protocol = new CIIClientProtocol(clientOptions);
-    const adaptor = new MessagePortAdaptor(protocol, port);
+  const protocol = new CIIClientProtocol(clientOptions);
+  const adaptor = new MessagePortAdaptor(protocol, port);
 
-    return new AdaptorWrapper(protocol, adaptor);
+  return new AdaptorWrapper(protocol, adaptor);
 };

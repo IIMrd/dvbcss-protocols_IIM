@@ -1,18 +1,18 @@
 /****************************************************************************
  * Copyright 2017 British Broadcasting Corporation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * @memberof dvbcss-protocols
@@ -28,8 +28,8 @@
  * (such as a {@link WebSocket} or a node.js [dgram_Socket]{@link dgram_Socket}) and the {@link ProtocolHandler}.
  */
 
-import { ProtocolHandler } from "../INTERFACES/ProtocolHandler.js";
-import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
+import { ProtocolHandler } from '../INTERFACES/ProtocolHandler.js';
+import { SocketAdaptor } from '../INTERFACES/SocketAdaptor.js';
 
 /**
  * @memberof dvbcss-protocols.SocketAdaptors
@@ -44,81 +44,85 @@ import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
  * @implements SocketAdaptor
  */
 export class WebSocketAdaptor implements SocketAdaptor {
-    private protocolHandler: ProtocolHandler;
-    private webSocket: WebSocket;
-    private handlers: { open: (evt: Event) => void; close: (evt: CloseEvent) => void; message: (evt: MessageEvent) => void; };
-    private send: (msg: string | ArrayBuffer, dest?: any) => void;
+  private protocolHandler: ProtocolHandler;
+  private webSocket: WebSocket;
+  private handlers: {
+    open: (evt: Event) => void;
+    close: (evt: CloseEvent) => void;
+    message: (evt: MessageEvent) => void;
+  };
+  private send: (msg: string | ArrayBuffer, dest?: any) => void;
 
-    /**
-     * @param protocolHandler
-     * @param webSocket
-     * @listens send
-     */
-    constructor(protocolHandler: ProtocolHandler, webSocket: WebSocket) {
-        this.protocolHandler = protocolHandler;
-        this.webSocket = webSocket;
+  /**
+   * @param protocolHandler
+   * @param webSocket
+   * @listens send
+   */
+  constructor(protocolHandler: ProtocolHandler, webSocket: WebSocket) {
+    this.protocolHandler = protocolHandler;
+    this.webSocket = webSocket;
 
-        this.handlers = {
-            open: (evt: Event) => {
-                this.protocolHandler.start();
-            },
+    this.handlers = {
+      open: (_evt: Event) => {
+        this.protocolHandler.start();
+      },
 
-            close: (evt: CloseEvent) => {
-                this.protocolHandler.stop();
-            },
-
-            message: (evt: MessageEvent) => {
-                let msg: string | ArrayBuffer;
-
-                try {
-                    if (evt.data instanceof ArrayBuffer) {
-                        msg = evt.data;
-                    } else if (typeof evt.data === "string") {
-                        msg = evt.data;
-                    } else {
-                        msg = new Uint8Array(evt.data).buffer;
-                    }
-
-                    this.protocolHandler.handleMessage(msg, null); // no routing information
-                } catch (error) {
-                    this.webSocket.close();
-                }
-            }
-        };
-
-        this.webSocket.addEventListener("open", this.handlers.open);
-        this.webSocket.addEventListener("close", this.handlers.close);
-        this.webSocket.addEventListener("message", this.handlers.message);
-
-        // handle requests to send
-        this.send = (msg: string | ArrayBuffer, dest?: any) => {
-            if (dest) {
-                (this.webSocket as any).send(msg, dest);
-            } else {
-                (this.webSocket).send(msg);
-            }
-        };
-
-        this.protocolHandler.on("send", this.send);
-
-        // if already open, commence
-        if (this.webSocket.readyState == 1) {
-            this.protocolHandler.start();
-        }
-    }
-
-    /**
-     * Force this adaptor to stop. Also calls the stop() method of the protocol handlers
-     */
-    public stop(): void {
-        this.webSocket.removeEventListener("open", this.handlers.open);
-        this.webSocket.removeEventListener("close", this.handlers.close);
-        this.webSocket.removeEventListener("message", this.handlers.message);
-        this.protocolHandler.removeListener("send", this.send);
+      close: (_evt: CloseEvent) => {
         this.protocolHandler.stop();
-    }
+      },
 
-    public isStarted(): boolean {
-        return this.protocolHandler.isStarted();
+      message: (evt: MessageEvent) => {
+        let msg: string | ArrayBuffer;
+
+        try {
+          if (evt.data instanceof ArrayBuffer) {
+            msg = evt.data;
+          } else if (typeof evt.data === 'string') {
+            msg = evt.data;
+          } else {
+            msg = new Uint8Array(evt.data).buffer;
+          }
+
+          this.protocolHandler.handleMessage(msg, null); // no routing information
+        } catch {
+          this.webSocket.close();
+        }
+      },
+    };
+
+    this.webSocket.addEventListener('open', this.handlers.open);
+    this.webSocket.addEventListener('close', this.handlers.close);
+    this.webSocket.addEventListener('message', this.handlers.message);
+
+    // handle requests to send
+    this.send = (msg: string | ArrayBuffer, dest?: any) => {
+      if (dest) {
+        (this.webSocket as any).send(msg, dest);
+      } else {
+        this.webSocket.send(msg);
+      }
+    };
+
+    this.protocolHandler.on('send', this.send);
+
+    // if already open, commence
+    if (this.webSocket.readyState == 1) {
+      this.protocolHandler.start();
     }
+  }
+
+  /**
+   * Force this adaptor to stop. Also calls the stop() method of the protocol handlers
+   */
+  public stop(): void {
+    this.webSocket.removeEventListener('open', this.handlers.open);
+    this.webSocket.removeEventListener('close', this.handlers.close);
+    this.webSocket.removeEventListener('message', this.handlers.message);
+    this.protocolHandler.removeListener('send', this.send);
+    this.protocolHandler.stop();
+  }
+
+  public isStarted(): boolean {
+    return this.protocolHandler.isStarted();
+  }
 }

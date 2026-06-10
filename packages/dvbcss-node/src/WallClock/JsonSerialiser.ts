@@ -12,20 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { WallClockMessage } from "./WallClockMessage.js";
-import { ProtocolSerialiser } from "../INTERFACES/ProtocolSerialiser.js";
+import { WallClockMessage } from './WallClockMessage.js';
+import { ProtocolSerialiser } from '../INTERFACES/ProtocolSerialiser.js';
 
 interface SerialisedWallClockMessage {
-    v: number;
-    t: number;
-    p: number;
-    mfe: number;
-    otvs: number;
-    otvn: number;
-    rt: number;
-    tt: number;
+  v: number;
+  t: number;
+  p: number;
+  mfe: number;
+  otvs: number;
+  otvn: number;
+  rt: number;
+  tt: number;
 }
 
 /**
@@ -35,57 +35,60 @@ interface SerialisedWallClockMessage {
  * @implements {ProtocolSerialiser}
  */
 export const JsonSerialiser: ProtocolSerialiser = {
-    /**
-     * Serialise an object representing a Wall Clock protocol message ready for transmission on the wire
-     * @param wcMsg - Object representing Wall Clock protocol message.
-     * @returns The serialsed message.
-     */
-    pack: function(wcMsg: WallClockMessage): string {
-
-        if (wcMsg.version != 0) { throw "Invalid message version"; }
-
-        const serialised: SerialisedWallClockMessage = {
-            v:    Number(wcMsg.version),
-            t:    Number(wcMsg.type),
-            p:    Number(wcMsg.precision),
-            mfe:  Number(wcMsg.max_freq_error),
-            otvs: Number(wcMsg.originate_timevalue_secs),
-            otvn: Number(wcMsg.originate_timevalue_nanos),
-            rt:   Number(wcMsg.receive_timevalue),
-            tt:   Number(wcMsg.transmit_timevalue)
-        };
-        return JSON.stringify(serialised);
-    },
-
-    /**
-     * Deserialise a received Wall Clock protocol message into an object representing it
-     * @param jsonMsg - The received serialsed message.
-     * @returns Object representing the Wall Clock protocol message.
-     */
-    unpack: function(jsonMsg: string | ArrayBuffer): WallClockMessage {
-        // coerce from arraybuffer,if needed
-        let jsonStr: string;
-        if (jsonMsg instanceof ArrayBuffer) {
-            jsonStr = String.fromCharCode.apply(null, Array.from(new Uint8Array(jsonMsg)));
-        } else {
-            jsonStr = jsonMsg;
-        }
-
-        const parsedMsg: SerialisedWallClockMessage = JSON.parse(jsonStr);
-
-        if (parsedMsg.v != 0) { throw "Invalid message version"; }
-
-        return new WallClockMessage(
-            parsedMsg.v,
-            parsedMsg.t,
-            parsedMsg.p,
-            parsedMsg.mfe,
-            parsedMsg.otvs,
-            parsedMsg.otvn,
-            parsedMsg.rt,
-            parsedMsg.tt
-        );
+  /**
+   * Serialise an object representing a Wall Clock protocol message ready for transmission on the wire
+   * @param wcMsg - Object representing Wall Clock protocol message.
+   * @returns The serialsed message.
+   */
+  pack: function (wcMsg: WallClockMessage): string {
+    if (wcMsg.version != 0) {
+      throw 'Invalid message version';
     }
+
+    const serialised: SerialisedWallClockMessage = {
+      v: Number(wcMsg.version),
+      t: Number(wcMsg.type),
+      p: Number(wcMsg.precision),
+      mfe: Number(wcMsg.max_freq_error),
+      otvs: Number(wcMsg.originate_timevalue_secs),
+      otvn: Number(wcMsg.originate_timevalue_nanos),
+      rt: Number(wcMsg.receive_timevalue),
+      tt: Number(wcMsg.transmit_timevalue),
+    };
+    return JSON.stringify(serialised);
+  },
+
+  /**
+   * Deserialise a received Wall Clock protocol message into an object representing it
+   * @param jsonMsg - The received serialsed message.
+   * @returns Object representing the Wall Clock protocol message.
+   */
+  unpack: function (jsonMsg: string | ArrayBuffer): WallClockMessage {
+    // coerce from arraybuffer,if needed
+    let jsonStr: string;
+    if (jsonMsg instanceof ArrayBuffer) {
+      jsonStr = String.fromCharCode.apply(null, Array.from(new Uint8Array(jsonMsg)));
+    } else {
+      jsonStr = jsonMsg;
+    }
+
+    const parsedMsg: SerialisedWallClockMessage = JSON.parse(jsonStr);
+
+    if (parsedMsg.v != 0) {
+      throw 'Invalid message version';
+    }
+
+    return new WallClockMessage(
+      parsedMsg.v,
+      parsedMsg.t,
+      parsedMsg.p,
+      parsedMsg.mfe,
+      parsedMsg.otvs,
+      parsedMsg.otvn,
+      parsedMsg.rt,
+      parsedMsg.tt,
+    );
+  },
 };
 
 export default JsonSerialiser;

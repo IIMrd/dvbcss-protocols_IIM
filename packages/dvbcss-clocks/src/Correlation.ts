@@ -1,18 +1,18 @@
 /****************************************************************************
  * Copyright 2017 British Broadcasting Corporation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * This is an immutable object representing a correlation.
@@ -86,7 +86,15 @@ export default class Correlation {
    */
   public readonly errorGrowthRate: number;
 
-  constructor(parentTimeOrObject: number | { parentTime?: number, childTime?: number, initialError?: number, errorGrowthRate?: number } | [number?, number?, number?, number?], childTime?: number, initialError?: number, errorGrowthRate?: number) {
+  constructor(
+    parentTimeOrObject:
+      | number
+      | { parentTime?: number; childTime?: number; initialError?: number; errorGrowthRate?: number }
+      | [number?, number?, number?, number?],
+    childTime?: number,
+    initialError?: number,
+    errorGrowthRate?: number,
+  ) {
     let parentTime: number | undefined;
 
     if (Array.isArray(parentTimeOrObject)) {
@@ -94,7 +102,7 @@ export default class Correlation {
       childTime = parentTimeOrObject[1];
       initialError = parentTimeOrObject[2];
       errorGrowthRate = parentTimeOrObject[3];
-    } else if (typeof parentTimeOrObject === "object") {
+    } else if (typeof parentTimeOrObject === 'object') {
       parentTime = parentTimeOrObject.parentTime;
       childTime = parentTimeOrObject.childTime;
       initialError = parentTimeOrObject.initialError;
@@ -103,11 +111,11 @@ export default class Correlation {
       parentTime = parentTimeOrObject;
     }
 
-    this.parentTime = (typeof parentTime !== "undefined") ? parentTime : 0;
-    this.childTime = (typeof childTime !== "undefined") ? childTime : 0;
+    this.parentTime = typeof parentTime !== 'undefined' ? parentTime : 0;
+    this.childTime = typeof childTime !== 'undefined' ? childTime : 0;
 
-    this.initialError = (typeof initialError !== "undefined") ? initialError : 0;
-    this.errorGrowthRate = (typeof errorGrowthRate !== "undefined") ? errorGrowthRate : 0;
+    this.initialError = typeof initialError !== 'undefined' ? initialError : 0;
+    this.errorGrowthRate = typeof errorGrowthRate !== 'undefined' ? errorGrowthRate : 0;
   }
 
   /**
@@ -127,8 +135,13 @@ export default class Correlation {
    * var corr2 = corr.butWith({parentTime:5});
    * console.log(corr.parentTime, corr.childTime); // 5 2
    */
-  butWith(changes: { parentTime?: number, childTime?: number, initialError?: number, errorGrowthRate?: number }): Correlation {
-    if (typeof changes === "undefined") {
+  butWith(changes: {
+    parentTime?: number;
+    childTime?: number;
+    initialError?: number;
+    errorGrowthRate?: number;
+  }): Correlation {
+    if (typeof changes === 'undefined') {
       return this;
     } else {
       let p = changes.parentTime;
@@ -136,10 +149,18 @@ export default class Correlation {
       let i = changes.initialError;
       let g = changes.errorGrowthRate;
 
-      if (typeof p === "undefined") { p = this.parentTime; }
-      if (typeof c === "undefined") { c = this.childTime; }
-      if (typeof i === "undefined") { i = this.initialError; }
-      if (typeof g === "undefined") { g = this.errorGrowthRate; }
+      if (typeof p === 'undefined') {
+        p = this.parentTime;
+      }
+      if (typeof c === 'undefined') {
+        c = this.childTime;
+      }
+      if (typeof i === 'undefined') {
+        i = this.initialError;
+      }
+      if (typeof g === 'undefined') {
+        g = this.errorGrowthRate;
+      }
 
       return new Correlation(p, c, i, g);
     }
@@ -151,10 +172,12 @@ export default class Correlation {
    * @returns {boolean} True if this correlation represents the same correlation and error/uncertainty as the one provided.
    */
   equals(obj: Correlation): boolean {
-    return this.parentTime === obj.parentTime &&
+    return (
+      this.parentTime === obj.parentTime &&
       this.childTime === obj.childTime &&
       this.initialError === obj.initialError &&
-      this.errorGrowthRate === obj.errorGrowthRate;
+      this.errorGrowthRate === obj.errorGrowthRate
+    );
   }
 
   toJSON(): object {
@@ -162,7 +185,7 @@ export default class Correlation {
       parentTime: this.parentTime,
       childTime: this.childTime,
       initialError: this.initialError,
-      errorGrowthRate: this.errorGrowthRate
+      errorGrowthRate: this.errorGrowthRate,
     };
   }
 }

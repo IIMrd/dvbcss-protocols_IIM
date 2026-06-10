@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * @memberof dvbcss-protocols
@@ -35,9 +35,9 @@
  * var clocks = require("dvbcss-clocks");
  * var Protocols = require("dvbcss-protocols");
  * var createClient = Protocols.TimelineSynchronisation.createTSClient;
- * 
+ *
  * var ws = new WebSocket("ws://127.0.0.1:7681/wall-clock-server");
- * 
+ *
  * var root = new clocks.DateNowClock();
  * var wallClock = new clocks.CorrelatedClock(root, {tickRate:1000000000});
  * var timelineClock = new clocks.CorrelatedClock(wallClock, {tickRate:90000})
@@ -46,18 +46,18 @@
  *     timelineSelector: "urn:dvb:css:timeline:pts",
  *     tickrate: timelineClock.tickRate
  * }
- * 
+ *
  * var client = createClient(ws, timelineClock, options);
- * 
+ *
  * // the timelineClock will now be automatically updated as messages are received.
  * // Then at some point later, just close the WebSocket connection to stop the client:
  * ws.close();
- * 
+ *
  */
 
-import { WebSocketAdaptor } from "../SocketAdaptors/WebSocketAdaptor.js";
-import { TSClientProtocol, TSClientProtocolOptions } from "./TSClientProtocol.js";
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
+import { WebSocketAdaptor } from '../SocketAdaptors/WebSocketAdaptor.js';
+import { TSClientProtocol, TSClientProtocolOptions } from './TSClientProtocol.js';
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
 
 /**
  * @memberof dvbcss-protocols.TimelineSynchronisation
@@ -69,13 +69,12 @@ import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
  * @param {TSClientProtocolOptions} clientOptions
  * @returns {WebSocketAdaptor} The WebSocket adaptor wrapping the whole client
  */
-export const createTSClient = (webSocket: WebSocket, syncTLClock: CorrelatedClock, clientOptions: TSClientProtocolOptions): WebSocketAdaptor => {
-    return new WebSocketAdaptor(
-        new TSClientProtocol(
-            syncTLClock,
-            clientOptions
-        ),
-        webSocket);
+export const createTSClient = (
+  webSocket: WebSocket,
+  syncTLClock: CorrelatedClock,
+  clientOptions: TSClientProtocolOptions,
+): WebSocketAdaptor => {
+  return new WebSocketAdaptor(new TSClientProtocol(syncTLClock, clientOptions), webSocket);
 };
 
 export default createTSClient;

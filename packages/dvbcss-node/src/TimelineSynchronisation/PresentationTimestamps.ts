@@ -17,9 +17,9 @@
  * Summary of parts containing contributions
  *   by British Broadcasting Corporation (BBC):
  *     PresentationTimestamps.deserialise : arraybuffer coercion
-*****************************************************************************/
+ *****************************************************************************/
 
-import PresentationTimestamp from "./PresentationTimestamp.js";
+import PresentationTimestamp from './PresentationTimestamp.js';
 
 /**
  * @memberof dvbcss-protocols.TimelineSynchronisation
@@ -27,54 +27,58 @@ import PresentationTimestamp from "./PresentationTimestamp.js";
  * Object representing actual, earliest and latest presentation timestamps sent from a synchronistion client to the MSAS.
  */
 export class PresentationTimestamps {
-    public earliest: PresentationTimestamp;
-    public latest: PresentationTimestamp;
-    public actual?: PresentationTimestamp;
+  public earliest: PresentationTimestamp;
+  public latest: PresentationTimestamp;
+  public actual?: PresentationTimestamp;
 
-    /**
-     * @param earliest timestamp indicating when the client can present a media sample at the very earliest
-     * @param latest timestamp indicating when the client can present a media sample at the very latest
-     * @param actual optional timestamp, representing the actual presentation on the client
-     */
-    constructor(earliest: PresentationTimestamp, latest: PresentationTimestamp, actual?: PresentationTimestamp) {
-        this.earliest = earliest;
-        this.latest = latest;
-        this.actual = actual;
+  /**
+   * @param earliest timestamp indicating when the client can present a media sample at the very earliest
+   * @param latest timestamp indicating when the client can present a media sample at the very latest
+   * @param actual optional timestamp, representing the actual presentation on the client
+   */
+  constructor(
+    earliest: PresentationTimestamp,
+    latest: PresentationTimestamp,
+    actual?: PresentationTimestamp,
+  ) {
+    this.earliest = earliest;
+    this.latest = latest;
+    this.actual = actual;
 
-        if (
-            !(
-                this.earliest instanceof PresentationTimestamp &&
-                this.latest instanceof PresentationTimestamp &&
-                (this.actual instanceof PresentationTimestamp || this.actual === undefined)
-            )
-        ) {
-            throw "PresentationTimestamps(): Invalid parameters.";
-        }
+    if (
+      !(
+        this.earliest instanceof PresentationTimestamp &&
+        this.latest instanceof PresentationTimestamp &&
+        (this.actual instanceof PresentationTimestamp || this.actual === undefined)
+      )
+    ) {
+      throw 'PresentationTimestamps(): Invalid parameters.';
     }
+  }
 
-    /**
-     * @returns {string} string representation of the PresentationTimestamps as defined by ETSI TS XXX XXX clause 5.7.4
-     */
-    public serialise(): string {
-        return JSON.stringify(this);
+  /**
+   * @returns {string} string representation of the PresentationTimestamps as defined by ETSI TS XXX XXX clause 5.7.4
+   */
+  public serialise(): string {
+    return JSON.stringify(this);
+  }
+
+  /**
+   * @returns {PresentationTimestamps} actual, earliest and latest presentation timestamps from a JSON formatted string
+   */
+  public static deserialise(jsonVal: string | ArrayBuffer): PresentationTimestamps {
+    // coerce from arraybuffer,if needed
+    if (jsonVal instanceof ArrayBuffer) {
+      jsonVal = String.fromCharCode.apply(null, new Uint8Array(jsonVal) as any);
     }
+    const o = JSON.parse(jsonVal as string);
 
-    /**
-     * @returns {PresentationTimestamps} actual, earliest and latest presentation timestamps from a JSON formatted string
-     */
-    public static deserialise(jsonVal: string | ArrayBuffer): PresentationTimestamps {
-        // coerce from arraybuffer,if needed
-        if (jsonVal instanceof ArrayBuffer) {
-            jsonVal = String.fromCharCode.apply(null, new Uint8Array(jsonVal) as any);
-        }
-        const o = JSON.parse(jsonVal as string);
-
-        return new PresentationTimestamps(
-            PresentationTimestamp.getFromObj(o.earliest),
-            PresentationTimestamp.getFromObj(o.latest),
-            o.actual ? PresentationTimestamp.getFromObj(o.actual) : undefined
-        );
-    }
+    return new PresentationTimestamps(
+      PresentationTimestamp.getFromObj(o.earliest),
+      PresentationTimestamp.getFromObj(o.latest),
+      o.actual ? PresentationTimestamp.getFromObj(o.actual) : undefined,
+    );
+  }
 }
 
 export default PresentationTimestamps;

@@ -12,15 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { TSClientProtocol, TSClientProtocolOptions } from "@iimrd/dvbcss-node";
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { MessagePortAdaptor } from "./MessagePortAdaptor.js";
+import { TSClientProtocol, TSClientProtocolOptions } from '@iimrd/dvbcss-node';
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import { MessagePortAdaptor } from './MessagePortAdaptor.js';
 
 export interface MessagePortTSClient {
-    adaptor: MessagePortAdaptor;
-    protocol: TSClientProtocol;
+  adaptor: MessagePortAdaptor;
+  protocol: TSClientProtocol;
 }
 
 /**
@@ -41,11 +41,11 @@ export interface MessagePortTSClient {
  * @returns An object containing the MessagePortAdaptor and the TSClientProtocol.
  */
 export const createMessagePortTSClient = (
-    port: MessagePort,
-    syncTLClock: CorrelatedClock,
-    clientOptions: TSClientProtocolOptions,
+  port: MessagePort,
+  syncTLClock: CorrelatedClock,
+  clientOptions: TSClientProtocolOptions,
 ): MessagePortTSClient => {
-    const protocol = new TSClientProtocol(syncTLClock, clientOptions);
-    const adaptor = new MessagePortAdaptor(protocol, port);
-    return { adaptor, protocol };
+  const protocol = new TSClientProtocol(syncTLClock, clientOptions);
+  const adaptor = new MessagePortAdaptor(protocol, port);
+  return { adaptor, protocol };
 };

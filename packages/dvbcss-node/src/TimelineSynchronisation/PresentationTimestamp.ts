@@ -17,7 +17,7 @@
  * Summary of parts containing contributions
  *   by British Broadcasting Corporation (BBC):
  *     PresentationTimestamp.prototype.equals
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * @memberof dvbcss-protocols.TimelineSynchronisation
@@ -25,38 +25,41 @@
  * Object representing a presentation timestamp to correlate media timelines with wall clock times.
  */
 export class PresentationTimestamp {
-    public contentTime: string;
-    public wallClockTime: string;
+  public contentTime: string;
+  public wallClockTime: string;
 
-    /**
-     * @param contentTime   if known a positive integer, null otherwise
-     * @param wallClockTime a value on the wallclock, as a positive integer
-     */
-    constructor(contentTime: number, wallClockTime: number) {
-        this.contentTime = Number(contentTime).toString();
-        this.wallClockTime = Number(wallClockTime).toString();
+  /**
+   * @param contentTime   if known a positive integer, null otherwise
+   * @param wallClockTime a value on the wallclock, as a positive integer
+   */
+  constructor(contentTime: number, wallClockTime: number) {
+    this.contentTime = Number(contentTime).toString();
+    this.wallClockTime = Number(wallClockTime).toString();
 
-        if (isNaN(Number(this.contentTime)) || isNaN(Number(this.wallClockTime))) {
-            throw "PresentationTimestamp(): Invalid parameters: not a number.";
-        }
+    if (isNaN(Number(this.contentTime)) || isNaN(Number(this.wallClockTime))) {
+      throw 'PresentationTimestamp(): Invalid parameters: not a number.';
     }
+  }
 
-    /**
-     * Method intended to be called from PresentationTimestamps.deserialise
-     * @returns {PresentationTimestamp} translates an object into a PresentationTimestamp.
-     */
-    public static getFromObj(o: { contentTime: number; wallClockTime: number }): PresentationTimestamp {
-        return new PresentationTimestamp(o.contentTime, o.wallClockTime);
-    }
+  /**
+   * Method intended to be called from PresentationTimestamps.deserialise
+   * @returns {PresentationTimestamp} translates an object into a PresentationTimestamp.
+   */
+  public static getFromObj(o: {
+    contentTime: number;
+    wallClockTime: number;
+  }): PresentationTimestamp {
+    return new PresentationTimestamp(o.contentTime, o.wallClockTime);
+  }
 
-    /**
-     * Compare this PresentationTimestamp with another to check if they are the same.
-     * @param obj - another PresentationTimestamp to compare with.
-     * @returns {boolean} True if this PresentationTimestamp represents the same PresentationTimestamp as the one provided.
-     */
-    public equals(obj: PresentationTimestamp): boolean {
-        return this.contentTime === obj.contentTime && this.wallClockTime === obj.wallClockTime;
-    }
+  /**
+   * Compare this PresentationTimestamp with another to check if they are the same.
+   * @param obj - another PresentationTimestamp to compare with.
+   * @returns {boolean} True if this PresentationTimestamp represents the same PresentationTimestamp as the one provided.
+   */
+  public equals(obj: PresentationTimestamp): boolean {
+    return this.contentTime === obj.contentTime && this.wallClockTime === obj.wallClockTime;
+  }
 }
 
 export default PresentationTimestamp;

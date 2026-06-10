@@ -30,7 +30,10 @@ import Correlation from './Correlation.js';
 export interface CorrelatedClockOptions {
   tickRate?: number;
   speed?: number;
-  correlation?: Correlation | { parentTime: number, childTime: number, initialError?: number, errorGrowthRate?: number } | [number, number, number?, number?];
+  correlation?:
+    | Correlation
+    | { parentTime: number; childTime: number; initialError?: number; errorGrowthRate?: number }
+    | [number, number, number?, number?];
 }
 
 /**
@@ -86,16 +89,16 @@ export default class CorrelatedClock extends ClockBase {
   constructor(parent: ClockBase, options?: CorrelatedClockOptions) {
     super();
 
-    if (options && (typeof options.tickRate !== "undefined")) {
+    if (options && typeof options.tickRate !== 'undefined') {
       if (options.tickRate <= 0) {
-        throw "Cannot have tickrate of zero or less";
+        throw 'Cannot have tickrate of zero or less';
       }
       this.freq = options.tickRate;
     } else {
       this.freq = 1000;
     }
 
-    if (options && (typeof options.speed !== "undefined")) {
+    if (options && typeof options.speed !== 'undefined') {
       this._speed = options.speed;
     } else {
       this._speed = 1.0;
@@ -103,18 +106,18 @@ export default class CorrelatedClock extends ClockBase {
 
     this._parent = parent;
 
-    if (options && (typeof options.correlation !== "undefined")) {
+    if (options && typeof options.correlation !== 'undefined') {
       this.corr = new Correlation(options.correlation);
     } else {
       this.corr = new Correlation(0, 0, 0, 0);
     }
 
     this.parentHandlers = {
-      "change": (causeClock: ClockBase) => {
-        this.emit("change", this);
+      change: (_causeClock: ClockBase) => {
+        this.emit('change', this);
       },
-      "available": this.notifyAvailabilityChange.bind(this),
-      "unavailable": this.notifyAvailabilityChange.bind(this),
+      available: this.notifyAvailabilityChange.bind(this),
+      unavailable: this.notifyAvailabilityChange.bind(this),
     };
 
     this._parent = null;
@@ -126,10 +129,14 @@ export default class CorrelatedClock extends ClockBase {
    */
   now(): number {
     if (this._parent === null || this._parent === undefined) {
-      return NaN
+      return NaN;
     }
 
-    return this.corr.childTime + (this._parent.now() - this.corr.parentTime) * this.freq * this._speed / this._parent.getTickRate();
+    return (
+      this.corr.childTime +
+      ((this._parent.now() - this.corr.parentTime) * this.freq * this._speed) /
+        this._parent.getTickRate()
+    );
   }
 
   /**
@@ -144,9 +151,22 @@ export default class CorrelatedClock extends ClockBase {
     if (this._parent) {
       p = this._parent.id;
     } else {
-      p = "<<no-parent>>";
+      p = '<<no-parent>>';
     }
-    return "CorrelatedClock(" + p + ", {tickRate:" + this.freq + ", speed:" + this._speed + ", correlation:" + this.corr + "}) [" + this.id + "]";
+    return (
+      'CorrelatedClock(' +
+      p +
+      ', {tickRate:' +
+      this.freq +
+      ', speed:' +
+      this._speed +
+      ', correlation:' +
+      // oxlint-disable-next-line no-base-to-string
+      this.corr +
+      '}) [' +
+      this.id +
+      ']'
+    );
   }
 
   /**
@@ -162,7 +182,7 @@ export default class CorrelatedClock extends ClockBase {
   setSpeed(newSpeed: number): void {
     if (this._speed != newSpeed) {
       this._speed = newSpeed;
-      this.emit("change", this);
+      this.emit('change', this);
     }
   }
 
@@ -179,7 +199,7 @@ export default class CorrelatedClock extends ClockBase {
   setTickRate(newTickRate: number): void {
     if (this.freq != newTickRate) {
       this.freq = newTickRate;
-      this.emit("change", this);
+      this.emit('change', this);
     }
   }
 
@@ -187,7 +207,7 @@ export default class CorrelatedClock extends ClockBase {
     this.corr = this.corr.butWith({
       parentTime: this.toParentTime(t),
       childTime: t,
-      initialError: this._errorAtTime(t)
+      initialError: this._errorAtTime(t),
     });
   }
 
@@ -232,7 +252,7 @@ export default class CorrelatedClock extends ClockBase {
    */
   setCorrelation(newCorrelation: Correlation): void {
     this.corr = new Correlation(newCorrelation);
-    this.emit("change", this);
+    this.emit('change', this);
   }
 
   /**
@@ -247,7 +267,7 @@ export default class CorrelatedClock extends ClockBase {
   setCorrelationAndSpeed(newCorrelation: Correlation, newSpeed: number): void {
     this.corr = new Correlation(newCorrelation);
     this._speed = newSpeed;
-    this.emit("change", this);
+    this.emit('change', this);
   }
 
   /**
@@ -275,9 +295,12 @@ export default class CorrelatedClock extends ClockBase {
     if (this._parent === null || this._parent === undefined) {
       return NaN;
     } else if (this._speed === 0) {
-      return (t === this.corr.childTime) ? this.corr.parentTime : NaN;
+      return t === this.corr.childTime ? this.corr.parentTime : NaN;
     } else {
-      return this.corr.parentTime + (t - this.corr.childTime) * this._parent.getTickRate() / this.freq / this._speed;
+      return (
+        this.corr.parentTime +
+        ((t - this.corr.childTime) * this._parent.getTickRate()) / this.freq / this._speed
+      );
     }
   }
 
@@ -288,7 +311,10 @@ export default class CorrelatedClock extends ClockBase {
     if (this._parent === null || this._parent === undefined) {
       return NaN;
     } else {
-      return this.corr.childTime + (t - this.corr.parentTime) * this.freq * this._speed / this._parent.getTickRate();
+      return (
+        this.corr.childTime +
+        ((t - this.corr.parentTime) * this.freq * this._speed) / this._parent.getTickRate()
+      );
     }
   }
 
@@ -318,7 +344,7 @@ export default class CorrelatedClock extends ClockBase {
         }
       }
 
-      this.emit("change", this);
+      this.emit('change', this);
     }
   }
 
@@ -342,7 +368,7 @@ export default class CorrelatedClock extends ClockBase {
     newCorrelation = new Correlation(newCorrelation);
 
     if (newSpeed != this._speed) {
-      return (newSpeed > this._speed) ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+      return newSpeed > this._speed ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
     } else {
       const nx = newCorrelation.parentTime;
       const nt = newCorrelation.childTime;
@@ -389,7 +415,11 @@ export default class CorrelatedClock extends ClockBase {
    * @param {Number} thresholdSecs Threshold in seconds
    * @returns {Boolean} True if the potential difference can/will eventually exceed the threshold.
    */
-  isChangeSignificant(newCorrelation: Correlation, newSpeed: number, thresholdSecs: number): boolean {
+  isChangeSignificant(
+    newCorrelation: Correlation,
+    newSpeed: number,
+    thresholdSecs: number,
+  ): boolean {
     const delta = this.quantifyChange(newCorrelation, newSpeed);
     return delta > thresholdSecs;
   }

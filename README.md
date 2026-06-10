@@ -9,25 +9,25 @@ This library has similarities to the protocol components in [pydvbcss](https://g
 
 ## Packages
 
-| Package | Description |
-|---|---|
-| [`@iimrd/dvbcss-clocks`](packages/dvbcss-clocks) | Clock hierarchy classes for modelling timelines and their relationships |
-| [`@iimrd/dvbcss-node`](packages/dvbcss-node) | DVB-CSS protocol implementations for Node.js (UDP + WebSocket) |
-| [`@iimrd/dvbcss-browser`](packages/dvbcss-browser) | Browser-specific transports (WebSocket + MessagePort) |
+| Package                                            | Description                                                             |
+| -------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`@iimrd/dvbcss-clocks`](packages/dvbcss-clocks)   | Clock hierarchy classes for modelling timelines and their relationships |
+| [`@iimrd/dvbcss-node`](packages/dvbcss-node)       | DVB-CSS protocol implementations for Node.js (UDP + WebSocket)          |
+| [`@iimrd/dvbcss-browser`](packages/dvbcss-browser) | Browser-specific transports (WebSocket + MessagePort)                   |
 
 ### Feature matrix
 
-| Feature | `dvbcss-node` | `dvbcss-browser` |
-|---|:---:|:---:|
-| CII client (WebSocket) | YES | YES |
-| TS client (WebSocket) | YES | YES |
-| WC client (UDP) | YES | |
-| WC client (WebSocket) | YES | YES |
-| WC client (MessagePort) | | YES |
-| WC server (UDP) | YES | |
-| WC server (WebSocket) | YES | |
-| CII client (MessagePort) | | YES |
-| TS client (MessagePort) | | YES |
+| Feature                  | `dvbcss-node` | `dvbcss-browser` |
+| ------------------------ | :-----------: | :--------------: |
+| CII client (WebSocket)   |      YES      |       YES        |
+| TS client (WebSocket)    |      YES      |       YES        |
+| WC client (UDP)          |      YES      |                  |
+| WC client (WebSocket)    |      YES      |       YES        |
+| WC client (MessagePort)  |               |       YES        |
+| WC server (UDP)          |      YES      |                  |
+| WC server (WebSocket)    |      YES      |                  |
+| CII client (MessagePort) |               |       YES        |
+| TS client (MessagePort)  |               |       YES        |
 
 ## Getting started
 
@@ -71,11 +71,11 @@ node examples/wallClockServer.js --help
 Creating a Wall Clock client using JSON messages over a WebSocket connection:
 
 ```ts
-import { WebSocket } from "ws";
-import { DateNowClock, CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { createJsonWebSocketClient } from "@iimrd/dvbcss-node";
+import { WebSocket } from 'ws';
+import { DateNowClock, CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import { createJsonWebSocketClient } from '@iimrd/dvbcss-node';
 
-const ws = new WebSocket("ws://127.0.0.1:7681/wall-clock-server");
+const ws = new WebSocket('ws://127.0.0.1:7681/wall-clock-server');
 
 const root = new DateNowClock();
 const wallClock = new CorrelatedClock(root);

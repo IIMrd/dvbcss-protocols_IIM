@@ -8,8 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "nodenext",
-    "baseUrl": "."
+    "moduleResolution": "nodenext"
   },
   "references": [
     { "path": "packages/dvbcss-clocks" },

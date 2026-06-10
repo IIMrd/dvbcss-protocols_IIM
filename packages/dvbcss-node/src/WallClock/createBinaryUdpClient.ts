@@ -12,13 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { UdpAdaptor } from "../SocketAdaptors/UdpAdaptor.js";
-import { WallClockClientProtocol, WallClockClientProtocolOptions } from "./WallClockClientProtocol.js";
-import { BinarySerialiser } from "./BinarySerialiser.js";
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { Socket as DgramSocket } from "dgram";
+import { UdpAdaptor } from '../SocketAdaptors/UdpAdaptor.js';
+import {
+  WallClockClientProtocol,
+  WallClockClientProtocolOptions,
+} from './WallClockClientProtocol.js';
+import { BinarySerialiser } from './BinarySerialiser.js';
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import { Socket as DgramSocket } from 'dgram';
 
 /**
  * @memberof dvbcss-protocols.WallClock
@@ -32,14 +35,15 @@ import { Socket as DgramSocket } from "dgram";
  * @param {WallClockClientProtocolOptions} protocolOptions Object.
  * @returns {UdpAdaptor} The UDP adaptor wrapping the whole client
  */
-const createBinaryUdpClient = (boundDgramSocket: DgramSocket, wallClock: CorrelatedClock, protocolOptions: WallClockClientProtocolOptions): UdpAdaptor => {
-    return new UdpAdaptor(
-        new WallClockClientProtocol(
-            wallClock,
-            BinarySerialiser,
-            protocolOptions
-        ),
-        boundDgramSocket);
+const createBinaryUdpClient = (
+  boundDgramSocket: DgramSocket,
+  wallClock: CorrelatedClock,
+  protocolOptions: WallClockClientProtocolOptions,
+): UdpAdaptor => {
+  return new UdpAdaptor(
+    new WallClockClientProtocol(wallClock, BinarySerialiser, protocolOptions),
+    boundDgramSocket,
+  );
 };
 
 export default createBinaryUdpClient;

@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { ProtocolHandler } from "../INTERFACES/ProtocolHandler.js";
-import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
-import { Socket as DgramSocket, RemoteInfo } from "dgram";
+import { ProtocolHandler } from '../INTERFACES/ProtocolHandler.js';
+import { SocketAdaptor } from '../INTERFACES/SocketAdaptor.js';
+import { Socket as DgramSocket, RemoteInfo } from 'dgram';
 
 /**
  * @memberof dvbcss-protocols.SocketAdaptors
@@ -32,54 +32,54 @@ import { Socket as DgramSocket, RemoteInfo } from "dgram";
  * @implements SocketAdaptor
  */
 export class UdpAdaptor implements SocketAdaptor {
-    private protocolHandler: ProtocolHandler;
-    private dgramSocket: DgramSocket;
-    private handlers: { close: () => void; message: (msg: Buffer, rinfo: RemoteInfo) => void; };
-    private sendCallback: (msg: string | Uint8Array, rinfo: RemoteInfo) => void;
+  private protocolHandler: ProtocolHandler;
+  private dgramSocket: DgramSocket;
+  private handlers: { close: () => void; message: (msg: Buffer, rinfo: RemoteInfo) => void };
+  private sendCallback: (msg: string | Uint8Array, rinfo: RemoteInfo) => void;
 
-    /**
-     * @param {ProtocolHandler} protocolHandler
-     * @param {DgramSocket} boundDgramSocket A datagram socket that is already bound.
-     */
-    constructor(protocolHandler: ProtocolHandler, boundDgramSocket: DgramSocket) {
-        this.protocolHandler = protocolHandler;
-        this.dgramSocket = boundDgramSocket;
+  /**
+   * @param {ProtocolHandler} protocolHandler
+   * @param {DgramSocket} boundDgramSocket A datagram socket that is already bound.
+   */
+  constructor(protocolHandler: ProtocolHandler, boundDgramSocket: DgramSocket) {
+    this.protocolHandler = protocolHandler;
+    this.dgramSocket = boundDgramSocket;
 
-        this.handlers = {
-            close: this.stop.bind(this),
-            message: (msg: Buffer, rinfo: RemoteInfo) => {
-                this.protocolHandler.handleMessage(new Uint8Array(msg).buffer, rinfo);
-            }
-        };
+    this.handlers = {
+      close: this.stop.bind(this),
+      message: (msg: Buffer, rinfo: RemoteInfo) => {
+        this.protocolHandler.handleMessage(new Uint8Array(msg).buffer, rinfo);
+      },
+    };
 
-        this.dgramSocket.on("close", this.handlers.close);
-        this.dgramSocket.on("message", this.handlers.message);
+    this.dgramSocket.on('close', this.handlers.close);
+    this.dgramSocket.on('message', this.handlers.message);
 
-        this.sendCallback = (msg, rinfo) => {
-            const buf = Buffer.from(msg);
-            this.dgramSocket.send(buf, 0, buf.length, rinfo.port, rinfo.address);
-        };
+    this.sendCallback = (msg, rinfo) => {
+      const buf = Buffer.from(msg);
+      this.dgramSocket.send(buf, 0, buf.length, rinfo.port, rinfo.address);
+    };
 
-        this.protocolHandler.on("send", this.sendCallback);
-        this.protocolHandler.start();
-    }
+    this.protocolHandler.on('send', this.sendCallback);
+    this.protocolHandler.start();
+  }
 
-    /**
-     * Force this adaptor to stop. Also calls the stop() method of the protocol handlers
-     */
-    public stop() {
-        this.dgramSocket.removeListener("close", this.handlers.close);
-        this.dgramSocket.removeListener("message", this.handlers.message);
-        this.protocolHandler.removeListener("send", this.sendCallback);
-        this.protocolHandler.stop();
-    }
+  /**
+   * Force this adaptor to stop. Also calls the stop() method of the protocol handlers
+   */
+  public stop() {
+    this.dgramSocket.removeListener('close', this.handlers.close);
+    this.dgramSocket.removeListener('message', this.handlers.message);
+    this.protocolHandler.removeListener('send', this.sendCallback);
+    this.protocolHandler.stop();
+  }
 
-    /**
-     * @returns True if the underlying protocol handler is running.
-     */
-    public isStarted(): boolean {
-        return this.protocolHandler.isStarted();
-    }
+  /**
+   * @returns True if the underlying protocol handler is running.
+   */
+  public isStarted(): boolean {
+    return this.protocolHandler.isStarted();
+  }
 }
 
 export default UdpAdaptor;

@@ -12,12 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { WebSocketAdaptor } from "../SocketAdaptors/WebSocketAdaptor.js";
-import { WallClockClientProtocol, WallClockClientProtocolOptions } from "./WallClockClientProtocol.js";
-import { JsonSerialiser } from "./JsonSerialiser.js";
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
+import { WebSocketAdaptor } from '../SocketAdaptors/WebSocketAdaptor.js';
+import {
+  WallClockClientProtocol,
+  WallClockClientProtocolOptions,
+} from './WallClockClientProtocol.js';
+import { JsonSerialiser } from './JsonSerialiser.js';
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
 
 /**
  * @memberof dvbcss-protocols.WallClock
@@ -29,15 +32,15 @@ import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
  * @param {WallClockClientProtocolOptions} clientOptions
  * @returns {WebSocketAdaptor} The WebSocket adaptor wrapping the whole client
  */
-export const createJsonWebSocketClient = (webSocket: WebSocket, wallClock: CorrelatedClock, clientOptions: WallClockClientProtocolOptions): WebSocketAdaptor => {
-    return new WebSocketAdaptor(
-        new WallClockClientProtocol(
-            wallClock,
-            JsonSerialiser,
-            clientOptions
-        ),
-        webSocket);
+export const createJsonWebSocketClient = (
+  webSocket: WebSocket,
+  wallClock: CorrelatedClock,
+  clientOptions: WallClockClientProtocolOptions,
+): WebSocketAdaptor => {
+  return new WebSocketAdaptor(
+    new WallClockClientProtocol(wallClock, JsonSerialiser, clientOptions),
+    webSocket,
+  );
 };
-
 
 export default createJsonWebSocketClient;

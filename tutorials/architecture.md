@@ -2,18 +2,16 @@ This library is designed to be modular and allow protocols (clients/servers)
 to be separated from on-the-wire message formats (Json/Binary etc)
 and the type of network transport (UDP/Websockets etc).
 
-This approach has been used for the WallClock protocol and partially used for the  Timeline
+This approach has been used for the WallClock protocol and partially used for the Timeline
 Synchronisation protocol. It has not been done for the CII protocol.
 
 ## Protocol Handlers, Socket Adaptors, Serialisers
-
-
 
 <div style="text-align:center;">
     <img src="https://bbc.github.io/dvbcss-protocols/protocol-handler-architecture.png" style="width:80%; min-width: 25em; max-width: 45em;">
 </div>
 
-A [Protocol Handler]( ../packages/dvbcss-node/src/INTERFACES/ProtocolHandler.ts) implements the protocol interaction. They receive and send messages via a [Socket Adaptor](../packages/dvbcss-node/src/INTERFACES/SocketAdaptor.ts) that abstracts the underlying network connection.
+A [Protocol Handler](../packages/dvbcss-node/src/INTERFACES/ProtocolHandler.ts) implements the protocol interaction. They receive and send messages via a [Socket Adaptor](../packages/dvbcss-node/src/INTERFACES/SocketAdaptor.ts) that abstracts the underlying network connection.
 
 The Socket Adaptor calls [start()](../packages/dvbcss-node/src/INTERFACES/ProtocolHandler.ts#start) and [stop()](../packages/dvbcss-node/src/INTERFACES/ProtocolHandler.ts#stop) methods when the connection opens or closes.
 
@@ -32,7 +30,6 @@ where the messages can be transported across a variety of transport protocols
 To simplify usage, `createXXXX()` helper functions are provided that construct the most common
 combinations of socket adaptor, protocol handler and serialisation.
 
-
 ### Example: Wall Clock Protocol client
 
 [WallClockClientProtocol](../packages/dvbcss-node/src/WallClock/WallClockClientProtocol.ts)
@@ -41,17 +38,15 @@ is an example of a protocol handler for a Wallclock Protocol client.
 It has a handler function that is called when a message is received, and it
 emits a [send event](../packages/dvbcss-node/src/INTERFACES/ProtocolHandler.ts#event:send) to request a message be sent.
 
-For this protocol, there are two serialisers available for *packing*/*unpacking*
+For this protocol, there are two serialisers available for _packing_/_unpacking_
 on-the-wire formats:
 
-* The [BinarySerialiser](../packages/dvbcss-node/src/WallClock/BinarySerialiser.ts) packs/unpacks to the binary format used in [DVB CSS](http://etsi.org/deliver/etsi_ts/103200_103299/10328602/01.01.01_60/ts_10328602v010101p.pdf)
-* The [JsonSerialiser](../packages/dvbcss-node/src/WallClock/JsonSerialiser.ts) packs/unpacks to a JSON format
-
-
+- The [BinarySerialiser](../packages/dvbcss-node/src/WallClock/BinarySerialiser.ts) packs/unpacks to the binary format used in [DVB CSS](http://etsi.org/deliver/etsi_ts/103200_103299/10328602/01.01.01_60/ts_10328602v010101p.pdf)
+- The [JsonSerialiser](../packages/dvbcss-node/src/WallClock/JsonSerialiser.ts) packs/unpacks to a JSON format
 
 Adaptors encapsulate the underlying network connection (represented usually by
 some kind of 'socket' object) and the Protocol Handler. They notify the handler of
 received messages and they listen for the 'send' events.
 
-* `Protocols.SocketAdapators.UdpAdaptor` - for node.js UDP [dgram](https://nodejs.org/api/dgram.html) object
-* `Protocols.SocketAdaptors.WebSocketAdaptor` - for any [W3C WebSocket API](https://www.w3.org/TR/websockets/) compliant object
+- `Protocols.SocketAdapators.UdpAdaptor` - for node.js UDP [dgram](https://nodejs.org/api/dgram.html) object
+- `Protocols.SocketAdaptors.WebSocketAdaptor` - for any [W3C WebSocket API](https://www.w3.org/TR/websockets/) compliant object

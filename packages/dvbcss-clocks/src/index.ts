@@ -1,25 +1,25 @@
 /****************************************************************************
  * Copyright 2017 British Broadcasting Corporation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import ClockBase from "./ClockBase.js";
-import DateNowClock from "./DateNowClock.js";
-import CorrelatedClock from "./CorrelatedClock.js";
-import Correlation from "./Correlation.js";
-import OffsetClock from "./OffsetClock.js";
-import { measurePrecision } from "./measurePrecision.js";
+import ClockBase from './ClockBase.js';
+import DateNowClock from './DateNowClock.js';
+import CorrelatedClock from './CorrelatedClock.js';
+import Correlation from './Correlation.js';
+import OffsetClock from './OffsetClock.js';
+import { measurePrecision } from './measurePrecision.js';
 
 /**
  * @module dvbcss-clocks
@@ -45,34 +45,34 @@ import { measurePrecision } from "./measurePrecision.js";
  * </ul>
  */
 export {
-    /**
-     * base class for all clock implementations
-     * @see ClockBase
-     */
-    ClockBase,
-    /**
-     * a root clock based on <tt>Date.now()</tt>
-     * @see DateNowClock
-     */
-    DateNowClock,
-    /**
-     * a clock based on a parent using a correlation.
-     * @see CorrelatedClock
-     */
-    CorrelatedClock,
-    /**
-     * a correlation.
-     * @see Correlation
-     */
-    Correlation,
-    /**
-     * a clock that applies a fixed offset to enable compensating for rendering latency.
-     * @see OffsetClock
-     */
-    OffsetClock,
-    /**
-     * returns the precision of a clock
-     * @see measurePrecision
-     */
-    measurePrecision,
+  /**
+   * base class for all clock implementations
+   * @see ClockBase
+   */
+  ClockBase,
+  /**
+   * a root clock based on <tt>Date.now()</tt>
+   * @see DateNowClock
+   */
+  DateNowClock,
+  /**
+   * a clock based on a parent using a correlation.
+   * @see CorrelatedClock
+   */
+  CorrelatedClock,
+  /**
+   * a correlation.
+   * @see Correlation
+   */
+  Correlation,
+  /**
+   * a clock that applies a fixed offset to enable compensating for rendering latency.
+   * @see OffsetClock
+   */
+  OffsetClock,
+  /**
+   * returns the precision of a clock
+   * @see measurePrecision
+   */
+  measurePrecision,
 };

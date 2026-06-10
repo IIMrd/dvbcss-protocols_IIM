@@ -1,9 +1,10 @@
 **This is only an introduction to the CSS-WC "Wall Clock" protocol.**
- * **See the [docs for the WallClock namespace]{@link dvbcss-protocols.WallClock} to understand
-   how to write client or server code using this library.**
- * **See clause 8 of the [DVB CSS specification](http://www.etsi.org/standards-search?search=103+286&page=1&title=1&keywords=1&ed=1&sortby=1) for full detailed semantics of the protocol.**
- * **See clause 13 of the [HbbTV 2 specification](http://hbbtv.org/resource-library/) to
-   understand how it is used by HbbTV 2 TVs.**
+
+- **See the [docs for the WallClock namespace]{@link dvbcss-protocols.WallClock} to understand
+  how to write client or server code using this library.**
+- **See clause 8 of the [DVB CSS specification](http://www.etsi.org/standards-search?search=103+286&page=1&title=1&keywords=1&ed=1&sortby=1) for full detailed semantics of the protocol.**
+- **See clause 13 of the [HbbTV 2 specification](http://hbbtv.org/resource-library/) to
+  understand how it is used by HbbTV 2 TVs.**
 
 The purpose of the CSS-WC protocol is clock synchronisation. It establishes a
 common shared clock (the "wall clock") between TV and companion, compensating
@@ -50,11 +51,12 @@ error bound on this (known as dispersion):
 
 Relationship expressed as an estimated offset:
 
- * Offset between local clock and server wall clock is (( t3 + t2 ) - ( t4 + t1 )) / 2
+- Offset between local clock and server wall clock is (( t3 + t2 ) - ( t4 + t1 )) / 2
 
 Relationship expressed as a correlation:
- * When local clock is ( t1 + t4 )/2
- * ... the server wall clock is estimated to be ( t2 + t3 )/2
+
+- When local clock is ( t1 + t4 )/2
+- ... the server wall clock is estimated to be ( t2 + t3 )/2
 
 The [DVB CSS specification](http://www.etsi.org/standards-search?search=103+286&page=1&title=1&keywords=1&ed=1&sortby=1)
 contains an annex that goes into more detail on the theory of how to calculate dispersion and how a client can use this as part of a simple algorithm to align its wall clock.
@@ -63,15 +65,15 @@ contains an annex that goes into more detail on the theory of how to calculate d
 
 A Wall Clock protocol message carries the following data:
 
- * Protocol **version** identifier
- * Message **type** (request / response / response-before-follow-up / follow-up)
- * The **precision** of the server’s wall clock
- * The **maximum frequency error** of the server’s wall clock
- * Timevalues (in NTP 64-bit time format, comprising a 32bit word carrying the
-   number of nanoseconds and another 32bit word containing the number of seconds)
-    * **Originate timevalue**: when the client sent the request.
-    * **Receive timevalue**: when the server received the request.
-    * **Transmit timevalue**: when the server sent the response.
+- Protocol **version** identifier
+- Message **type** (request / response / response-before-follow-up / follow-up)
+- The **precision** of the server’s wall clock
+- The **maximum frequency error** of the server’s wall clock
+- Timevalues (in NTP 64-bit time format, comprising a 32bit word carrying the
+  number of nanoseconds and another 32bit word containing the number of seconds)
+  - **Originate timevalue**: when the client sent the request.
+  - **Receive timevalue**: when the server received the request.
+  - **Transmit timevalue**: when the server sent the response.
 
 The precision, max freq error, receive timevalue and transmit timevalue fields
 only have meaning in a response from a server. Their values do not matter in
@@ -98,7 +100,7 @@ Example: (with explanatory comments that must be removed for it to be valid JSON
         "p":    0.0001,         /* server clock has 0.1 millisecond precision */
         "mfe":  50,             /* server clock max freq error = 50 ppm */
         "otvs": 19346582,       /* client request sent at 19346582.9826511 seconds */
-        "otvn": 982651100,      
+        "otvn": 982651100,
         "rt":   29784724.1927,  /* server received request at 29784724.1927 seconds */
         "tt":   29784724.1938   /* server sent response at 29784724.1938 seconds */
     }
@@ -107,11 +109,11 @@ Example: (with explanatory comments that must be removed for it to be valid JSON
 
 | Property name | Value type | Value meaning                  | Units/default value |
 | :------------ | :--------: | :----------------------------- | :-----------------: |
-| v             | Number     | Message version                | 0                   |
-| t             | Number     | Message type (see below)       | (see below)         |
-| p             | Number     | Server clock precision         | seconds+fractions   |
-| mfe           | Number     | Server clock max freq error    | ppm                 |
-| otvs          | Number     | Request sent timevalue (secs)  | whole seconds       |
-| otvn          | Number     | Request sent timevalue (nanos) | nanoseconds part    |
-| rt            | Number     | Request received timevalue     | seconds+fractions   |
-| tt            | Number     | Response sent timevalue        | seconds+fractions   |
+| v             |   Number   | Message version                |          0          |
+| t             |   Number   | Message type (see below)       |     (see below)     |
+| p             |   Number   | Server clock precision         |  seconds+fractions  |
+| mfe           |   Number   | Server clock max freq error    |         ppm         |
+| otvs          |   Number   | Request sent timevalue (secs)  |    whole seconds    |
+| otvn          |   Number   | Request sent timevalue (nanos) |  nanoseconds part   |
+| rt            |   Number   | Request received timevalue     |  seconds+fractions  |
+| tt            |   Number   | Response sent timevalue        |  seconds+fractions  |

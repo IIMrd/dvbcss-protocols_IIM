@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * @memberof dvbcss-protocols
@@ -72,10 +72,13 @@
  
  */
 
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { WallClockClientProtocol, WallClockClientProtocolOptions } from "./WallClockClientProtocol.js";
-import { ProtocolSerialiser } from "../INTERFACES/ProtocolSerialiser.js";
-import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import {
+  WallClockClientProtocol,
+  WallClockClientProtocolOptions,
+} from './WallClockClientProtocol.js';
+import { ProtocolSerialiser } from '../INTERFACES/ProtocolSerialiser.js';
+import { SocketAdaptor } from '../INTERFACES/SocketAdaptor.js';
 
 /**
  * @memberof dvbcss-protocols.WallClock
@@ -89,20 +92,16 @@ import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
  * @returns {SocketAdaptor} The Socket adaptor wrapping the whole client
  */
 export const createClient = <T extends SocketAdaptor>(
-    socket: any,
-    AdaptorClass: new (protocolHandler: WallClockClientProtocol, socket: any) => T,
-    serialiser: ProtocolSerialiser,
-    wallClock: CorrelatedClock,
-    clientOptions: WallClockClientProtocolOptions
+  socket: any,
+  AdaptorClass: new (protocolHandler: WallClockClientProtocol, socket: any) => T,
+  serialiser: ProtocolSerialiser,
+  wallClock: CorrelatedClock,
+  clientOptions: WallClockClientProtocolOptions,
 ): T => {
-    return new AdaptorClass(
-        new WallClockClientProtocol(
-            wallClock,
-            serialiser,
-            clientOptions
-        ),
-        socket
-    );
+  return new AdaptorClass(
+    new WallClockClientProtocol(wallClock, serialiser, clientOptions),
+    socket,
+  );
 };
 
 export default createClient;

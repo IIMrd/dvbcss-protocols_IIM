@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { EventEmitter } from "eventemitter3";
-import CIIMessage from "./CIIMessage.js";
-import { ProtocolHandler } from "../INTERFACES/ProtocolHandler.js";
+import { EventEmitter } from 'eventemitter3';
+import CIIMessage from './CIIMessage.js';
+import { ProtocolHandler } from '../INTERFACES/ProtocolHandler.js';
 
 /**
  * CII Client callback
@@ -27,7 +27,7 @@ import { ProtocolHandler } from "../INTERFACES/ProtocolHandler.js";
 export type ciiChangedCallback = (cii: CIIMessage, changemask: number) => void;
 
 export interface CIIClientProtocolOptions {
-    callback?: ciiChangedCallback;
+  callback?: ciiChangedCallback;
 }
 
 /**
@@ -40,82 +40,91 @@ export interface CIIClientProtocolOptions {
  * @event CIIClientProtocol#change
  */
 export class CIIClientProtocol extends EventEmitter implements ProtocolHandler {
-    private _cii: CIIMessage;
-    private lastCII?: CIIMessage;
-    private started: boolean = false;
-    private CIIChangeCallback?: ciiChangedCallback;
+  private _cii: CIIMessage;
+  private lastCII?: CIIMessage;
+  private started: boolean = false;
+  private CIIChangeCallback?: ciiChangedCallback;
 
-    /**
-     * @param clientOptions Optional. Parameters for this protocol client.
-     */
-    constructor(clientOptions: CIIClientProtocolOptions = {}) {
-        super();
-        this._cii = new CIIMessage(undefined, null, undefined, undefined, undefined, undefined, undefined, undefined);
-        this.CIIChangeCallback = clientOptions.callback;
-    }
+  /**
+   * @param clientOptions Optional. Parameters for this protocol client.
+   */
+  constructor(clientOptions: CIIClientProtocolOptions = {}) {
+    super();
+    this._cii = new CIIMessage(
+      undefined,
+      null,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
+    this.CIIChangeCallback = clientOptions.callback;
+  }
 
-    /**
-     * The current CII state, as shared by the server (the TV).
-     * This is not the most recently received message (since that may only
-     * describe changes since the previous message). Instead this is the result
-     * of applying those changes to update the client side model of the server
-     * side CII state.
-     */
-    public get cii(): CIIMessage {
-        return this._cii;
-    }
+  /**
+   * The current CII state, as shared by the server (the TV).
+   * This is not the most recently received message (since that may only
+   * describe changes since the previous message). Instead this is the result
+   * of applying those changes to update the client side model of the server
+   * side CII state.
+   */
+  public get cii(): CIIMessage {
+    return this._cii;
+  }
 
-    public start(): void {
-        this.started = true;
-    }
+  public start(): void {
+    this.started = true;
+  }
 
-    public stop(): void {
-        this.started = false;
-    }
+  public stop(): void {
+    this.started = false;
+  }
 
-    /**
-     * Handle CII messages .
-     *
-     * @param msg the control timestamp as defined in DVB CSS
-     * @param source
-     */
-    public handleMessage(msg: string | ArrayBuffer, source?: any): void {
-        let changemask: number;
-        const changeNames: { [key: string]: boolean } = {};
+  /**
+   * Handle CII messages .
+   *
+   * @param msg the control timestamp as defined in DVB CSS
+   * @param source
+   */
+  public handleMessage(msg: string | ArrayBuffer, _source?: any): void {
+    let changemask: number;
+    const changeNames: { [key: string]: boolean } = {};
 
-        const receivedCII = CIIMessage.deserialise(msg);
+    const receivedCII = CIIMessage.deserialise(msg);
 
-        if (typeof receivedCII !== "undefined") {
-            changemask = this._cii.compare(receivedCII, changeNames);
+    if (typeof receivedCII !== 'undefined') {
+      changemask = this._cii.compare(receivedCII, changeNames);
 
-            if (this.lastCII === undefined) {
-                changemask |= CIIMessage.CIIChangeMask.FIRST_CII_RECEIVED;
-            }
-            this.lastCII = receivedCII;
-            this._cii = this._cii.merge(receivedCII);
+      if (this.lastCII === undefined) {
+        changemask |= CIIMessage.CIIChangeMask.FIRST_CII_RECEIVED;
+      }
+      this.lastCII = receivedCII;
+      this._cii = this._cii.merge(receivedCII);
 
-            if (changemask != 0) {
-                if (this.CIIChangeCallback !== undefined) {
-                    this.CIIChangeCallback(this._cii, changemask);
-                }
-                /**
-                 * @event change
-                 * The CII state of the server has changed.
-                 * @param cii The current CII state of the server
-                 * @param changedNames
-                 * @param changeMask A [bitfield mask]{@link CIIMessage.CIIChangeMask} describing which CII properties have just changed
-                 */
-                this.emit("change", this._cii, changeNames, changemask);
-            }
+      if (changemask != 0) {
+        if (this.CIIChangeCallback !== undefined) {
+          this.CIIChangeCallback(this._cii, changemask);
         }
+        /**
+         * @event change
+         * The CII state of the server has changed.
+         * @param cii The current CII state of the server
+         * @param changedNames
+         * @param changeMask A [bitfield mask]{@link CIIMessage.CIIChangeMask} describing which CII properties have just changed
+         */
+        this.emit('change', this._cii, changeNames, changemask);
+      }
     }
+  }
 
-    /**
-     * Returns true if this protocol handler is started.
-     */
-    public isStarted(): boolean {
-        return this.started;
-    }
+  /**
+   * Returns true if this protocol handler is started.
+   */
+  public isStarted(): boolean {
+    return this.started;
+  }
 }
 
 export default CIIClientProtocol;

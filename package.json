@@ -6,21 +6,32 @@
     "dvb",
     "dvbcss"
   ],
-  "directories": {
-    "example": "examples"
-  },
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/IIMrd/dvbcss-protocols.git"
   },
-  "scripts": {
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "doc": "typedoc",
-    "clean": "rm -rf packages/*/dist && rm -rf packages/*/*.tsbuildinfo",
-    "build": "tsc -b",
-    "prepare": "pnpm build && pnpm doc"
+  "directories": {
+    "example": "examples"
   },
+  "scripts": {
+    "test": "vp test",
+    "test:ui": "vp test --ui",
+    "build": "vp run -r build",
+    "check": "vp check",
+    "clean": "rm -rf packages/*/dist && rm -rf packages/*/*.tsbuildinfo",
+    "doc": "typedoc",
+    "prepare": "vp config && vp run build && vp run doc"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "@types/ws": "^8.18.1",
+    "typedoc": "^0.28.5",
+    "typescript": "^5.8.3",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "packageManager": "pnpm@11.5.2",
   "authors": [
     {
       "name": "British Broadcasting Corporation",
@@ -30,16 +41,5 @@
       "name": "Lluc Simó Margalef",
       "email": "lsimmar@teleco.upv.es"
     }
-  ],
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "@types/node": "^24.0.1",
-    "@types/ws": "^8.18.1",
-    "@types/jest": "29.5.14",
-    "typedoc": "^0.28.5",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.3",
-    "webpack": "^5.99.9",
-    "webpack-dev-server": "^5.2.2"
-  }
+  ]
 }

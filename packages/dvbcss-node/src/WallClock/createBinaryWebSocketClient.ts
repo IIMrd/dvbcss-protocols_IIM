@@ -12,12 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { WebSocketAdaptor } from "../SocketAdaptors/WebSocketAdaptor.js";
-import { WallClockClientProtocol, WallClockClientProtocolOptions } from "./WallClockClientProtocol.js";
-import { BinarySerialiser } from "./BinarySerialiser.js";
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
+import { WebSocketAdaptor } from '../SocketAdaptors/WebSocketAdaptor.js';
+import {
+  WallClockClientProtocol,
+  WallClockClientProtocolOptions,
+} from './WallClockClientProtocol.js';
+import { BinarySerialiser } from './BinarySerialiser.js';
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
 
 /**
  * @memberof dvbcss-protocols.WallClock
@@ -29,15 +32,15 @@ import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
  * @param {WallClockClientProtocolOptions} clientOptions
  * @returns {WebSocketAdaptor} The WebSocket adaptor wrapping the whole client
  */
-const createBinaryWebSocketClient = (webSocket: WebSocket, wallClock: CorrelatedClock, clientOptions: WallClockClientProtocolOptions): WebSocketAdaptor => {
-    return new WebSocketAdaptor(
-        new WallClockClientProtocol(
-            wallClock,
-            BinarySerialiser,
-            clientOptions
-        ),
-        webSocket);
+const createBinaryWebSocketClient = (
+  webSocket: WebSocket,
+  wallClock: CorrelatedClock,
+  clientOptions: WallClockClientProtocolOptions,
+): WebSocketAdaptor => {
+  return new WebSocketAdaptor(
+    new WallClockClientProtocol(wallClock, BinarySerialiser, clientOptions),
+    webSocket,
+  );
 };
-
 
 export default createBinaryWebSocketClient;

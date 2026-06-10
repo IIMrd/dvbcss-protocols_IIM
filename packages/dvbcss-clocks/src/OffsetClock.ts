@@ -12,9 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import ClockBase from "./ClockBase.js";
+import ClockBase from './ClockBase.js';
 
 /**
  * A clock that applies an offset such that reading it is the same as
@@ -61,197 +61,199 @@ import ClockBase from "./ClockBase.js";
  * <p>Both positive and negative offsets can be used.
  */
 export default class OffsetClock extends ClockBase {
-    private _offset: number;
-    private _parent: ClockBase | null;
-    private parentHandlers: { [key: string]: (...args: any[]) => void };
+  private _offset: number;
+  private _parent: ClockBase | null;
+  private parentHandlers: { [key: string]: (...args: any[]) => void };
 
-    constructor(parent: ClockBase, options?: { offset?: number }) {
-        super();
+  constructor(parent: ClockBase, options?: { offset?: number }) {
+    super();
 
-        if (options && (typeof options.offset !== "undefined")) {
-            if (typeof options.offset === "number") {
-                this._offset = options.offset;
-            } else {
-                throw "'offset' option must be a number (in milliseconds)";
-            }
-        } else {
-            this._offset = 0;
+    if (options && typeof options.offset !== 'undefined') {
+      if (typeof options.offset === 'number') {
+        this._offset = options.offset;
+      } else {
+        throw "'offset' option must be a number (in milliseconds)";
+      }
+    } else {
+      this._offset = 0;
+    }
+
+    this.parentHandlers = {
+      change: (_causeClock: any) => {
+        this.emit('change', this);
+      },
+      available: this.notifyAvailabilityChange.bind(this),
+      unavailable: this.notifyAvailabilityChange.bind(this),
+    };
+
+    this._parent = null;
+    this.setParent(parent);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  now(): number {
+    if (!this._parent) {
+      return NaN;
+    }
+    return (
+      this._parent.now() + (this._offset * this.getEffectiveSpeed() * this._parent.tickRate) / 1000
+    );
+  }
+
+  /**
+   * @returns {String} A human readable summary of this clock object, including its current properties
+   * @example
+   * > c=new Offset(parent, {offset:20});
+   * > c.toString()
+   * 'OffsetClock(clock_0, {offset:20}) [clock_1]'
+   */
+  toString(): string {
+    var p;
+    if (this._parent) {
+      p = this._parent.id;
+    } else {
+      p = '<<no-parent>>';
+    }
+    return 'OffsetClock(' + p + ', {offset:' + this._offset + '}) [' + this.id + ']';
+  }
+
+  /**
+   * @inheritdoc
+   */
+  getSpeed(): number {
+    return 1;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  setSpeed(_newSpeed: number): void {
+    throw 'Cannot change the speed of this clock.';
+  }
+
+  /**
+   * @inheritdoc
+   */
+  getTickRate(): number {
+    if (!this._parent) {
+      return 0;
+    }
+    return this._parent.tickRate;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  setTickRate(_newTickRate: number): void {
+    throw 'Cannot change the tick rate of this clock.';
+  }
+
+  /**
+   * <p>The underlying implementation of this property uses the
+   * [getOffset]{@link OffsetClock#getOffset} and
+   * [setOffset]{@link OffsetClock#setOffset} methods.
+   * @default 1.0
+   * @event change
+   */
+  get offset(): number {
+    return this.getOffset();
+  }
+
+  set offset(millis: number) {
+    this.setOffset(millis);
+  }
+
+  /**
+   * Read the number of milliseconds by which this clock is ahead (the offset).
+   *
+   * The offset is in terms of elapsed root clock time, not elapsed time of
+   * the parent.
+   *
+   * @return {Number} The number of milliseconds by which this clock is ahead.
+   */
+  getOffset(): number {
+    return this._offset;
+  }
+
+  /**
+   * Change the number of milliseconds by which this clock is ahead (the offset)
+   *
+   * The offset is in terms of elapsed root clock time, not elapsed time of
+   * the parent.
+   *
+   * @param {Number} millis The number of milliseconds by which this clock is ahead.
+   */
+  setOffset(millis: number): void {
+    var changed = millis != this._offset;
+    this._offset = millis;
+    if (changed) {
+      this.emit('change', this);
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  calcWhen(t: number): number {
+    if (!this._parent) {
+      return NaN;
+    }
+    var tt = t + (this._offset * this.getEffectiveSpeed() * this._parent.tickRate) / 1000;
+    return this._parent.calcWhen(this.toParentTime(tt));
+  }
+
+  /**
+   * @inheritdoc
+   */
+  getParent(): ClockBase | null {
+    return this._parent;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  setParent(newParent: ClockBase): void {
+    var event;
+
+    if (this._parent != newParent) {
+      if (this._parent) {
+        for (event in this.parentHandlers) {
+          this._parent.removeListener(event, this.parentHandlers[event]);
         }
+      }
 
-        this.parentHandlers = {
-            "change": (causeClock) => {
-                this.emit("change", this);
-            },
-            "available": this.notifyAvailabilityChange.bind(this),
-            "unavailable": this.notifyAvailabilityChange.bind(this),
-        };
+      this._parent = newParent;
 
-        this._parent = null;
-        this.setParent(parent);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    now(): number {
-        if (!this._parent) {
-            return NaN;
+      if (this._parent) {
+        for (event in this.parentHandlers) {
+          this._parent.on(event, this.parentHandlers[event]);
         }
-        return this._parent.now() + this._offset * this.getEffectiveSpeed() * this._parent.tickRate / 1000;
+      }
+
+      this.emit('change', this);
     }
+  }
 
-    /**
-     * @returns {String} A human readable summary of this clock object, including its current properties
-     * @example
-     * > c=new Offset(parent, {offset:20});
-     * > c.toString()
-     * 'OffsetClock(clock_0, {offset:20}) [clock_1]'
-     */
-    toString(): string {
-        var p;
-        if (this._parent) {
-            p = this._parent.id;
-        } else {
-            p = "<<no-parent>>";
-        }
-        return "OffsetClock(" + p + ", {offset:" + this._offset + "}) [" + this.id + "]";
-    }
+  /**
+   * @inheritdoc
+   */
+  toParentTime(t: number): number {
+    return t - (this._offset * this.getEffectiveSpeed() * this.tickRate) / 1000;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    getSpeed(): number {
-        return 1;
-    }
+  /**
+   * @inheritdoc
+   */
+  fromParentTime(t: number): number {
+    return t + (this._offset * this.getEffectiveSpeed() * this.tickRate) / 1000;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    setSpeed(newSpeed: number): void {
-        throw "Cannot change the speed of this clock.";
-    }
-
-    /**
-     * @inheritdoc
-     */
-    getTickRate(): number {
-        if (!this._parent) {
-            return 0;
-        }
-        return this._parent.tickRate;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    setTickRate(newTickRate: number): void {
-        throw "Cannot change the tick rate of this clock.";
-    }
-
-    /**
-     * <p>The underlying implementation of this property uses the
-     * [getOffset]{@link OffsetClock#getOffset} and
-     * [setOffset]{@link OffsetClock#setOffset} methods.
-     * @default 1.0
-     * @event change
-     */
-    get offset(): number {
-        return this.getOffset();
-    }
-
-    set offset(millis: number) {
-        this.setOffset(millis);
-    }
-
-    /**
-     * Read the number of milliseconds by which this clock is ahead (the offset).
-     *
-     * The offset is in terms of elapsed root clock time, not elapsed time of
-     * the parent.
-     *
-     * @return {Number} The number of milliseconds by which this clock is ahead.
-     */
-    getOffset(): number {
-        return this._offset;
-    }
-
-    /**
-     * Change the number of milliseconds by which this clock is ahead (the offset)
-     *
-     * The offset is in terms of elapsed root clock time, not elapsed time of
-     * the parent.
-     *
-     * @param {Number} millis The number of milliseconds by which this clock is ahead.
-     */
-    setOffset(millis: number): void {
-        var changed = millis != this._offset;
-        this._offset = millis;
-        if (changed) {
-            this.emit("change", this);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    calcWhen(t: number): number {
-        if (!this._parent) {
-            return NaN;
-        }
-        var tt = t + this._offset * this.getEffectiveSpeed() * this._parent.tickRate / 1000;
-        return this._parent.calcWhen(this.toParentTime(tt));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    getParent(): ClockBase | null {
-        return this._parent;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    setParent(newParent: ClockBase): void {
-        var event;
-
-        if (this._parent != newParent) {
-            if (this._parent) {
-                for (event in this.parentHandlers) {
-                    this._parent.removeListener(event, this.parentHandlers[event]);
-                }
-            }
-
-            this._parent = newParent;
-
-            if (this._parent) {
-                for (event in this.parentHandlers) {
-                    this._parent.on(event, this.parentHandlers[event]);
-                }
-            }
-
-            this.emit("change", this);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    toParentTime(t: number): number {
-        return t - this._offset * this.getEffectiveSpeed() * this.tickRate / 1000;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    fromParentTime(t: number): number {
-        return t + this._offset * this.getEffectiveSpeed() * this.tickRate / 1000;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    _errorAtTime(t: number): number {
-        return 0;
-    }
+  /**
+   * @inheritdoc
+   */
+  _errorAtTime(_t: number): number {
+    return 0;
+  }
 }

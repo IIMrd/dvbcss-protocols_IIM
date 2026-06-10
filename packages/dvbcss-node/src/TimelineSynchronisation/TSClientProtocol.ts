@@ -18,34 +18,34 @@
  *   by British Broadcasting Corporation (BBC):
  *     TSClientProtocol.prototype.handleMessage :
  *         availablility and change significance checks
-*****************************************************************************/
+ *****************************************************************************/
 
-import { EventEmitter } from "eventemitter3";
-import { Correlation, CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { ProtocolHandler } from "../INTERFACES/ProtocolHandler.js";
-import { ControlTimestamp } from "./ControlTimestamp.js";
-import { TSSetupMessage } from "./TSSetupMessage.js";
-import { PresentationTimestamps } from "./PresentationTimestamps.js";
-import { PresentationTimestamp } from "./PresentationTimestamp.js";
+import { EventEmitter } from 'eventemitter3';
+import { Correlation, CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import { ProtocolHandler } from '../INTERFACES/ProtocolHandler.js';
+import { ControlTimestamp } from './ControlTimestamp.js';
+import { TSSetupMessage } from './TSSetupMessage.js';
+import { PresentationTimestamps } from './PresentationTimestamps.js';
+import { PresentationTimestamp } from './PresentationTimestamp.js';
 
 /**
  * @memberof dvbcss-protocols.TimelineSynchronisation
- * 
+ *
  * Options for the TSClientProtocol handler.
  */
 export interface TSClientProtocolOptions {
-    /**
-     * The Content Identifier stem to match the timed content.
-     */
-    contentIdStem: string;
-    /**
-     * The Timeline Selector describing the type and location of the timeline.
-     */
-    timelineSelector: string;
-    /**
-     * The tick rate of the timeline. If specified, it will be used to set the tick rate of the provided clock.
-     */
-    tickRate?: number;
+  /**
+   * The Content Identifier stem to match the timed content.
+   */
+  contentIdStem: string;
+  /**
+   * The Timeline Selector describing the type and location of the timeline.
+   */
+  timelineSelector: string;
+  /**
+   * The tick rate of the timeline. If specified, it will be used to set the tick rate of the provided clock.
+   */
+  tickRate?: number;
 }
 
 /**
@@ -58,111 +58,122 @@ export interface TSClientProtocolOptions {
  * @implements ProtocolHandler
  */
 export class TSClientProtocol extends EventEmitter implements ProtocolHandler {
-    private syncTLClock: CorrelatedClock;
-    private contentIdStem: string;
-    private timelineSelector: string;
-    private prevControlTimestamp?: ControlTimestamp;
-    private _isStarted: boolean;
+  private syncTLClock: CorrelatedClock;
+  private contentIdStem: string;
+  private timelineSelector: string;
+  private prevControlTimestamp?: ControlTimestamp;
+  private _isStarted: boolean;
 
-    /**
-     * @param {CorrelatedClock} syncTLClock The clock to represent the timeline. It will be updated according to the timestamp messages received.
-     * @param {TSClientProtocolOptions} options Options for this TSClientProtocol handler.
-     */
-    constructor(syncTLClock: CorrelatedClock, options: TSClientProtocolOptions) {
-        super();
+  /**
+   * @param {CorrelatedClock} syncTLClock The clock to represent the timeline. It will be updated according to the timestamp messages received.
+   * @param {TSClientProtocolOptions} options Options for this TSClientProtocol handler.
+   */
+  constructor(syncTLClock: CorrelatedClock, options: TSClientProtocolOptions) {
+    super();
+
+    if (
+      !syncTLClock ||
+      typeof syncTLClock.setCorrelation !== 'function' ||
+      typeof options.contentIdStem !== 'string' ||
+      typeof options.timelineSelector !== 'string'
+    ) {
+      throw new Error('TSClientProtocol(): Invalid parameters');
+    }
+
+    this.syncTLClock = syncTLClock;
+    this.contentIdStem = options.contentIdStem;
+    this.timelineSelector = options.timelineSelector;
+
+    const tr = Number(options.tickRate);
+    if (!isNaN(tr) && tr > 0) {
+      this.syncTLClock.tickRate = tr;
+    }
+
+    this.syncTLClock.setAvailabilityFlag(false);
+    this._isStarted = false;
+  }
+
+  public start(): void {
+    this.sendSetupMessage();
+    this._isStarted = true;
+  }
+
+  public stop(): void {
+    this.syncTLClock.setAvailabilityFlag(false);
+    this._isStarted = false;
+  }
+
+  /**
+   * Handle control timestamps and update the CorrelatedClock that represents the synchronization timeline.
+   *
+   * @param {string} msg The control timestamp as defined in DVB CSS.
+   * @param rinfo
+   */
+  public handleMessage(msg: string, _rinfo?: any): void {
+    try {
+      const cts = ControlTimestamp.deserialise(msg);
+      this.prevControlTimestamp = cts;
+
+      const isAvailable = cts.contentTime !== null;
+
+      if (
+        cts.contentTime !== null &&
+        cts.wallClockTime !== null &&
+        cts.timelineSpeedMultiplier !== null &&
+        this.syncTLClock.parent
+      ) {
+        const correlation = new Correlation(
+          this.syncTLClock.parent.fromNanos(cts.wallClockTime),
+          cts.contentTime,
+        );
+        const speed = cts.timelineSpeedMultiplier;
 
         if (
-            !syncTLClock ||
-            typeof syncTLClock.setCorrelation !== "function" ||
-            typeof options.contentIdStem !== "string" ||
-            typeof options.timelineSelector !== "string"
+          !this.syncTLClock.availabilityFlag ||
+          this.syncTLClock.isChangeSignificant(correlation, speed, 0.01)
         ) {
-            throw new Error("TSClientProtocol(): Invalid parameters");
+          this.syncTLClock.setCorrelationAndSpeed(correlation, speed);
         }
+      }
 
-        this.syncTLClock = syncTLClock;
-        this.contentIdStem = options.contentIdStem;
-        this.timelineSelector = options.timelineSelector;
-
-        const tr = Number(options.tickRate);
-        if (!isNaN(tr) && tr > 0) {
-            this.syncTLClock.tickRate = tr;
-        }
-
-        this.syncTLClock.setAvailabilityFlag(false);
-        this._isStarted = false;
+      this.syncTLClock.setAvailabilityFlag(isAvailable);
+    } catch (e) {
+      const err = e as Error;
+      throw new Error(`TSCP handleMessage: exception: ${err.message} -- msg: ${msg}`);
     }
+  }
 
-    public start(): void {
-        this.sendSetupMessage();
-        this._isStarted = true;
-    }
+  /**
+   * Send presentation timestamps to the server. These are used by the server to determine the current position of the content and adjust the synchronization accordingly. Check out the DVB CSS specification for more details on the significance of these timestamps and how they are used by the server.
+   *
+   * @param {PresentationTimestamp} earliest
+   * @param {PresentationTimestamp} latest
+   * @param {PresentationTimestamp} [actual]
+   */
+  public sendPresentationTimestamps(
+    earliest: PresentationTimestamp,
+    latest: PresentationTimestamp,
+    actual?: PresentationTimestamp,
+  ): void {
+    const pts = new PresentationTimestamps(earliest, latest, actual);
+    this.emit('send', pts.serialise(), { binary: false });
+  }
 
-    public stop(): void {
-        this.syncTLClock.setAvailabilityFlag(false);
-        this._isStarted = false;
-    }
+  /**
+   * Returns true if the protocol handler is running.
+   * @returns {boolean}
+   */
+  public isStarted(): boolean {
+    return this._isStarted;
+  }
 
-    /**
-     * Handle control timestamps and update the CorrelatedClock that represents the synchronization timeline.
-     *
-     * @param {string} msg The control timestamp as defined in DVB CSS.
-     * @param rinfo
-     */
-    public handleMessage(msg: string, rinfo?: any): void {
-        try {
-            const cts = ControlTimestamp.deserialise(msg);
-            this.prevControlTimestamp = cts;
-
-            const isAvailable = cts.contentTime !== null;
-
-            if (cts.contentTime !== null && cts.wallClockTime !== null && cts.timelineSpeedMultiplier !== null && this.syncTLClock.parent) {
-                const correlation = new Correlation(this.syncTLClock.parent.fromNanos(cts.wallClockTime), cts.contentTime);
-                const speed = cts.timelineSpeedMultiplier;
-
-                if (!this.syncTLClock.availabilityFlag || this.syncTLClock.isChangeSignificant(correlation, speed, 0.010)) {
-                    this.syncTLClock.setCorrelationAndSpeed(correlation, speed);
-                }
-            }
-
-            this.syncTLClock.setAvailabilityFlag(isAvailable);
-        } catch (e) {
-            const err = e as Error;
-            throw new Error(`TSCP handleMessage: exception: ${err.message} -- msg: ${msg}`);
-        }
-    }
-
-    /**
-     * Send presentation timestamps to the server. These are used by the server to determine the current position of the content and adjust the synchronization accordingly. Check out the DVB CSS specification for more details on the significance of these timestamps and how they are used by the server.
-     *
-     * @param {PresentationTimestamp} earliest
-     * @param {PresentationTimestamp} latest
-     * @param {PresentationTimestamp} [actual]
-     */
-    public sendPresentationTimestamps(
-        earliest: PresentationTimestamp,
-        latest: PresentationTimestamp,
-        actual?: PresentationTimestamp
-    ): void {
-        const pts = new PresentationTimestamps(earliest, latest, actual);
-        this.emit("send", pts.serialise(), { binary: false });
-    }
-
-    /**
-     * Returns true if the protocol handler is running.
-     * @returns {boolean}
-     */
-    public isStarted(): boolean {
-        return this._isStarted;
-    }
-
-    /**
-     * Sends the setup message to the server.
-     */
-    private sendSetupMessage(): void {
-        const setupMsg = new TSSetupMessage(this.contentIdStem, this.timelineSelector);
-        this.emit("send", setupMsg.serialise(), { binary: false });
-    }
+  /**
+   * Sends the setup message to the server.
+   */
+  private sendSetupMessage(): void {
+    const setupMsg = new TSSetupMessage(this.contentIdStem, this.timelineSelector);
+    this.emit('send', setupMsg.serialise(), { binary: false });
+  }
 }
 
 export default TSClientProtocol;

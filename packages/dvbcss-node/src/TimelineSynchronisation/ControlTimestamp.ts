@@ -17,7 +17,7 @@
  * Summary of parts containing contributions
  *   by British Broadcasting Corporation (BBC):
  *     ControlTimestamp.prototype.toJson
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * @memberof dvbcss-protocols.TimelineSynchronisation
@@ -27,57 +27,62 @@
  * @implements {Serialisable}
  */
 export class ControlTimestamp {
-    public contentTime: number | null;
-    public wallClockTime: number;
-    public timelineSpeedMultiplier: number | null;
+  public contentTime: number | null;
+  public wallClockTime: number;
+  public timelineSpeedMultiplier: number | null;
 
-    /**
-     * @param contentTime if known a positive integer, null otherwise
-     * @param wallClockTime a value on the wallclock, as a positive integer
-     * @param timelineSpeedMultiplier if known a floating point number, null otherwise
-     */
-    constructor(contentTime: number | null, wallClockTime: number, timelineSpeedMultiplier: number | null) {
-        this.contentTime = contentTime !== null ? Number(contentTime) : null;
-        this.wallClockTime = Number(wallClockTime);
-        this.timelineSpeedMultiplier = timelineSpeedMultiplier !== null ? Number(timelineSpeedMultiplier) : null;
+  /**
+   * @param contentTime if known a positive integer, null otherwise
+   * @param wallClockTime a value on the wallclock, as a positive integer
+   * @param timelineSpeedMultiplier if known a floating point number, null otherwise
+   */
+  constructor(
+    contentTime: number | null,
+    wallClockTime: number,
+    timelineSpeedMultiplier: number | null,
+  ) {
+    this.contentTime = contentTime !== null ? Number(contentTime) : null;
+    this.wallClockTime = Number(wallClockTime);
+    this.timelineSpeedMultiplier =
+      timelineSpeedMultiplier !== null ? Number(timelineSpeedMultiplier) : null;
 
-        if (
-            !(
-                (this.contentTime !== null && this.timelineSpeedMultiplier !== null) ||
-                (this.contentTime === null && this.timelineSpeedMultiplier === null)
-            ) ||
-            !Number.isInteger(this.wallClockTime)
-        ) {
-            throw "Invalid parameters";
-        }
+    if (
+      !(
+        (this.contentTime !== null && this.timelineSpeedMultiplier !== null) ||
+        (this.contentTime === null && this.timelineSpeedMultiplier === null)
+      ) ||
+      !Number.isInteger(this.wallClockTime)
+    ) {
+      throw 'Invalid parameters';
+    }
+  }
+
+  /**
+   * @return a string representation of this ControlTimestamp as defined by ETSI TS 103 286 clause 5.7.5
+   */
+  public serialise(): string {
+    return JSON.stringify({
+      contentTime: this.contentTime?.toString(),
+      wallClockTime: this.wallClockTime.toString(),
+      timelineSpeedMultiplier: this.timelineSpeedMultiplier,
+    });
+  }
+
+  /**
+   * @returns {ControlTimestamp} Creates a ControlTimestamp from a JSON formatted string as defined by ETSI TS 103 286 clause 5.7.5
+   */
+  public static deserialise(jsonVal: string | ArrayBuffer): ControlTimestamp {
+    // coerce from arraybuffer,if needed
+    if (jsonVal instanceof ArrayBuffer) {
+      jsonVal = String.fromCharCode.apply(null, new Uint8Array(jsonVal) as any);
     }
 
-    /**
-     * @return a string representation of this ControlTimestamp as defined by ETSI TS 103 286 clause 5.7.5
-     */
-    public serialise(): string {
-        return JSON.stringify({
-            contentTime: this.contentTime?.toString(),
-            wallClockTime: this.wallClockTime.toString(),
-            timelineSpeedMultiplier: this.timelineSpeedMultiplier,
-        });
-    }
+    const o = JSON.parse(jsonVal as string);
 
-    /**
-     * @returns {ControlTimestamp} Creates a ControlTimestamp from a JSON formatted string as defined by ETSI TS 103 286 clause 5.7.5
-     */
-    public static deserialise(jsonVal: string | ArrayBuffer): ControlTimestamp {
-        // coerce from arraybuffer,if needed
-        if (jsonVal instanceof ArrayBuffer) {
-            jsonVal = String.fromCharCode.apply(null, new Uint8Array(jsonVal) as any);
-        }
+    return new ControlTimestamp(o.contentTime, o.wallClockTime, o.timelineSpeedMultiplier);
+  }
 
-        const o = JSON.parse(jsonVal as string);
-
-        return new ControlTimestamp(o.contentTime, o.wallClockTime, o.timelineSpeedMultiplier);
-    }
-
-    public toJson(): string {
-        return this.serialise.call(this);
-    }
+  public toJson(): string {
+    return this.serialise.call(this);
+  }
 }

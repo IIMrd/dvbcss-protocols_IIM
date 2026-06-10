@@ -2,18 +2,21 @@
   "name": "@iimrd/dvbcss-node",
   "version": "0.1.6",
   "description": "Node.js-specific components for DVB-CSS protocols",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "license": "Apache-2.0",
   "files": [
     "dist",
     "src/**/*.ts",
     "package.json"
   ],
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "scripts": {
+    "build": "vp pack"
+  },
   "dependencies": {
+    "@iimrd/dvbcss-clocks": "workspace:*",
     "eventemitter3": "^5.0.1",
-    "ws": "^8.18.2",
-    "@iimrd/dvbcss-clocks": "workspace:*"
+    "ws": "^8.18.2"
   }
 }

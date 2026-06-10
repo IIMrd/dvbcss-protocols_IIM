@@ -1,18 +1,18 @@
 /****************************************************************************
  * Copyright 2017 British Broadcasting Corporation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
 import ClockBase from './ClockBase.js';
 import { measurePrecision } from './measurePrecision.js';
@@ -62,16 +62,16 @@ export default class DateNowClock extends ClockBase {
   constructor(options?: DateNowClockOptions) {
     super();
 
-    if (options && (typeof options.tickRate !== "undefined")) {
+    if (options && typeof options.tickRate !== 'undefined') {
       if (options.tickRate <= 0) {
-        throw "Cannot have tickrate of zero or less";
+        throw 'Cannot have tickrate of zero or less';
       }
       this.freq = options.tickRate;
     } else {
       this.freq = 1000;
     }
 
-    if (options && (typeof options.maxFreqErrorPpm !== "undefined")) {
+    if (options && typeof options.maxFreqErrorPpm !== 'undefined') {
       this.maxFreqErrorPpm = options.maxFreqErrorPpm;
     } else {
       this.maxFreqErrorPpm = 50;
@@ -84,7 +84,7 @@ export default class DateNowClock extends ClockBase {
    * @inheritdoc
    */
   now(): number {
-    return Date.now() / 1000 * this.freq;
+    return (Date.now() / 1000) * this.freq;
   }
 
   /**
@@ -98,7 +98,7 @@ export default class DateNowClock extends ClockBase {
    * @inheritdoc
    */
   calcWhen(t: number): number {
-    return t / this.freq * 1000;
+    return (t / this.freq) * 1000;
   }
 
   /**
@@ -109,21 +109,29 @@ export default class DateNowClock extends ClockBase {
    * 'DateNowClock({tickRate:1000, maxFreqErrorPpm:50}) [clock_0]'
    */
   toString(): string {
-    return "DateNowClock({tickRate:" + this.freq + ", maxFreqErrorPpm:" + this.maxFreqErrorPpm + "}) [" + this.id + "]";
+    return (
+      'DateNowClock({tickRate:' +
+      this.freq +
+      ', maxFreqErrorPpm:' +
+      this.maxFreqErrorPpm +
+      '}) [' +
+      this.id +
+      ']'
+    );
   }
 
   /**
    * @inheritdoc
    */
-  toParentTime(t: number): number {
-    throw "Clock has no parent.";
+  toParentTime(_t: number): number {
+    throw 'Clock has no parent.';
   }
 
   /**
    * @inheritdoc
    */
-  fromParentTime(t: number): number {
-    throw "Clock has no parent.";
+  fromParentTime(_t: number): number {
+    throw 'Clock has no parent.';
   }
 
   /**
@@ -137,8 +145,8 @@ export default class DateNowClock extends ClockBase {
    * The parent of this clock is always <tt>null</tt> and cannot be changed.
    * @throws because this clock cannot have a parent.
    */
-  setParent(newParent: ClockBase): void {
-    throw "Cannot set a parent for this clock.";
+  setParent(_newParent: ClockBase): void {
+    throw 'Cannot set a parent for this clock.';
   }
 
   /**
@@ -147,14 +155,14 @@ export default class DateNowClock extends ClockBase {
    */
   setAvailabilityFlag(availability: boolean): void {
     if (!availability) {
-      throw "Cannot change availability of this clock.";
+      throw 'Cannot change availability of this clock.';
     }
   }
 
   /**
    * @inheritdoc
    */
-  _errorAtTime(t: number): number {
+  _errorAtTime(_t: number): number {
     return this.precision;
   }
 

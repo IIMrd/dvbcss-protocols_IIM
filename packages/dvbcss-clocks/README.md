@@ -15,25 +15,21 @@ pnpm add @iimrd/dvbcss-clocks
 
 ## API overview
 
-| Export | Description |
-|---|---|
-| `ClockBase` | Abstract base class for all clocks. Extends `EventEmitter`. Manages parent-child relationships and emits `change` / `available` / `unavailable` events. |
-| `DateNowClock` | Root clock backed by `Date.now()`. Options: `tickRate`, `maxFreqErrorPpm`. |
-| `CorrelatedClock` | Clock whose time is derived from a parent via a `Correlation`. Options: `tickRate`, `speed`, `correlation`. |
-| `Correlation` | Immutable value object mapping a point on a parent clock to a point on a child clock, with optional error bounds. |
-| `OffsetClock` | Applies a fixed time offset to its parent clock (e.g. for render-latency compensation). |
-| `measurePrecision` | Utility function that empirically measures the minimum observable tick of a time source. |
+| Export             | Description                                                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ClockBase`        | Abstract base class for all clocks. Extends `EventEmitter`. Manages parent-child relationships and emits `change` / `available` / `unavailable` events. |
+| `DateNowClock`     | Root clock backed by `Date.now()`. Options: `tickRate`, `maxFreqErrorPpm`.                                                                              |
+| `CorrelatedClock`  | Clock whose time is derived from a parent via a `Correlation`. Options: `tickRate`, `speed`, `correlation`.                                             |
+| `Correlation`      | Immutable value object mapping a point on a parent clock to a point on a child clock, with optional error bounds.                                       |
+| `OffsetClock`      | Applies a fixed time offset to its parent clock (e.g. for render-latency compensation).                                                                 |
+| `measurePrecision` | Utility function that empirically measures the minimum observable tick of a time source.                                                                |
 
 ## Quick overview
 
 Clock objects form a hierarchy and are used to represent how one sense of time relates to another — e.g. how a timeline for media playback relates to real world time.
 
 ```ts
-import {
-  DateNowClock,
-  Correlation,
-  CorrelatedClock,
-} from "@iimrd/dvbcss-clocks";
+import { DateNowClock, Correlation, CorrelatedClock } from '@iimrd/dvbcss-clocks';
 ```
 
 A `DateNowClock` is a root clock wrapping system time from `Date.now()`:
@@ -74,9 +70,9 @@ const videoTimeline = new CorrelatedClock(wallClock, {
 Listen for events — changes propagate down the hierarchy:
 
 ```ts
-videoTimeline.on("change", () => console.log("Video timeline changed"));
-videoTimeline.on("available", () => console.log("Video timeline available"));
-videoTimeline.on("unavailable", () => console.log("Video timeline unavailable"));
+videoTimeline.on('change', () => console.log('Video timeline changed'));
+videoTimeline.on('available', () => console.log('Video timeline available'));
+videoTimeline.on('unavailable', () => console.log('Video timeline unavailable'));
 ```
 
 Modify clock properties. This triggers `change` events on all descendant clocks:
@@ -91,7 +87,7 @@ wallClock.availabilityFlag = true;
 Schedule callbacks tied to a clock's timeline:
 
 ```ts
-videoTimeline.setAtTime(() => console.log("Time to stop video"), 500);
+videoTimeline.setAtTime(() => console.log('Time to stop video'), 500);
 ```
 
 This callback fires when `videoTimeline` reaches (or jumps past) time position 500, even if correlations change in the meantime.

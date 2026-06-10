@@ -12,12 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*****************************************************************************/
+ *****************************************************************************/
 
-import { CorrelatedClock } from "@iimrd/dvbcss-clocks";
-import { WallClockServerProtocol, WallClockServerProtocolOptions } from "./WallClockServerProtocol.js";
-import { ProtocolSerialiser } from "../INTERFACES/ProtocolSerialiser.js";
-import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
+import { CorrelatedClock } from '@iimrd/dvbcss-clocks';
+import {
+  WallClockServerProtocol,
+  WallClockServerProtocolOptions,
+} from './WallClockServerProtocol.js';
+import { ProtocolSerialiser } from '../INTERFACES/ProtocolSerialiser.js';
+import { SocketAdaptor } from '../INTERFACES/SocketAdaptor.js';
 
 /**
  * @memberof dvbcss-protocols.WallClock
@@ -31,20 +34,16 @@ import { SocketAdaptor } from "../INTERFACES/SocketAdaptor.js";
  * @returns {SocketAdaptor} The Socket adaptor wrapping the whole server.
  */
 const createServer = <T extends SocketAdaptor>(
-    socket: any,
-    AdaptorClass: new (protocolHandler: WallClockServerProtocol, socket: any) => T,
-    serialiser: ProtocolSerialiser,
-    wallClock: CorrelatedClock,
-    protocolOptions: WallClockServerProtocolOptions
+  socket: any,
+  AdaptorClass: new (protocolHandler: WallClockServerProtocol, socket: any) => T,
+  serialiser: ProtocolSerialiser,
+  wallClock: CorrelatedClock,
+  protocolOptions: WallClockServerProtocolOptions,
 ): T => {
-    return new AdaptorClass(
-        new WallClockServerProtocol(
-            wallClock,
-            serialiser,
-            protocolOptions
-        ),
-        socket
-    );
+  return new AdaptorClass(
+    new WallClockServerProtocol(wallClock, serialiser, protocolOptions),
+    socket,
+  );
 };
 
 export default createServer;

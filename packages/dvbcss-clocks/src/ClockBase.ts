@@ -21,7 +21,7 @@
  *     CorrelatedClock.prototype._rescheduleTimers
  ****************************************************************************/
 
-import { EventEmitter } from "eventemitter3";
+import { EventEmitter } from 'eventemitter3';
 
 let nextIdNum = 0;
 let nextTimeoutHandle = 0;
@@ -29,7 +29,7 @@ let nextTimeoutHandle = 0;
 type TimerHandle = string;
 
 interface Timer {
-  realHandle?: NodeJS.Timeout;
+  realHandle?: ReturnType<typeof setTimeout>;
   when: number;
   callback: () => void;
 }
@@ -122,7 +122,7 @@ export default class ClockBase extends EventEmitter {
     super();
 
     this._availability = true;
-    this.id = "clock_" + nextIdNum++;
+    this.id = 'clock_' + nextIdNum++;
     this.timerHandles = {};
     this.on('change', this._rescheduleTimers.bind(this));
     this.availablePrev = this._availability;
@@ -133,7 +133,7 @@ export default class ClockBase extends EventEmitter {
    * @abstract
    */
   now(): number {
-    throw "Unimplemented";
+    throw 'Unimplemented';
   }
 
   /**
@@ -235,8 +235,8 @@ export default class ClockBase extends EventEmitter {
    * @abstract
    * @event change
    */
-  setSpeed(newSpeed: number): void {
-    throw "Unimplemented";
+  setSpeed(_newSpeed: number): void {
+    throw 'Unimplemented';
   }
 
   /**
@@ -246,6 +246,7 @@ export default class ClockBase extends EventEmitter {
    */
   getEffectiveSpeed(): number {
     let s = 1.0;
+    // oxlint-disable-next-line no-this-alias
     let clock: ClockBase | null = this;
     while (clock !== null) {
       s = s * clock.getSpeed();
@@ -260,7 +261,7 @@ export default class ClockBase extends EventEmitter {
    * @abstract
    */
   getTickRate(): number {
-    throw "Unimplemented";
+    throw 'Unimplemented';
   }
 
   /**
@@ -269,8 +270,8 @@ export default class ClockBase extends EventEmitter {
    * @abstract
    * @event change
    */
-  setTickRate(newRate: number): void {
-    throw "Unimplemented";
+  setTickRate(_newRate: number): void {
+    throw 'Unimplemented';
   }
 
   /**
@@ -278,7 +279,7 @@ export default class ClockBase extends EventEmitter {
    * @returns {number} current time of this clock in nanoseconds.
    */
   getNanos(): number {
-    return this.now() * 1000000000 / this.getTickRate();
+    return (this.now() * 1000000000) / this.getTickRate();
   }
 
   /**
@@ -287,7 +288,7 @@ export default class ClockBase extends EventEmitter {
    * @returns {number} the supplied time converted to units of its tick rate.
    */
   fromNanos(nanos: number): number {
-    return nanos * this.getTickRate() / 1000000000;
+    return (nanos * this.getTickRate()) / 1000000000;
   }
 
   /**
@@ -327,7 +328,7 @@ export default class ClockBase extends EventEmitter {
     const availableNow = this.isAvailable();
     if (availableNow !== this.availablePrev) {
       this.availablePrev = availableNow;
-      this.emit(availableNow ? "available" : "unavailable", this);
+      this.emit(availableNow ? 'available' : 'unavailable', this);
     }
   }
 
@@ -354,8 +355,8 @@ export default class ClockBase extends EventEmitter {
    * @return {number} The corresponding time value in the units of the underlying system clock that is being used by the root clock, or <tt>NaN</tt> if this conversion is not possible.
    * @abstract
    */
-  calcWhen(ticksWhen: number): number {
-    throw "Unimplemented";
+  calcWhen(_ticksWhen: number): number {
+    throw 'Unimplemented';
   }
 
   /**
@@ -366,6 +367,7 @@ export default class ClockBase extends EventEmitter {
    * @return {ClockBase} The root clock of the hierarchy
    */
   getRoot(): ClockBase {
+    // oxlint-disable-next-line no-this-alias
     let p: ClockBase = this;
     let p2 = p.getParent();
     while (p2) {
@@ -417,23 +419,27 @@ export default class ClockBase extends EventEmitter {
     const otherAncestry = otherClock.getAncestry();
 
     let common = false;
-    while (selfAncestry.length && otherAncestry.length && selfAncestry[selfAncestry.length - 1] === otherAncestry[otherAncestry.length - 1]) {
+    while (
+      selfAncestry.length &&
+      otherAncestry.length &&
+      selfAncestry[selfAncestry.length - 1] === otherAncestry[otherAncestry.length - 1]
+    ) {
       selfAncestry.pop();
       otherAncestry.pop();
       common = true;
     }
 
     if (!common) {
-      throw "No common ancestor clock.";
+      throw 'No common ancestor clock.';
     }
 
-    selfAncestry.forEach(clock => {
+    selfAncestry.forEach((clock) => {
       t = clock.toParentTime(t);
     });
 
     otherAncestry.reverse();
 
-    otherAncestry.forEach(clock => {
+    otherAncestry.forEach((clock) => {
       t = clock.fromParentTime(t);
     });
 
@@ -446,6 +452,7 @@ export default class ClockBase extends EventEmitter {
    */
   getAncestry(): ClockBase[] {
     const ancestry: ClockBase[] = [this];
+    // oxlint-disable-next-line no-this-alias
     let c: ClockBase | null = this;
     while (c) {
       const p = c.getParent();
@@ -464,8 +471,8 @@ export default class ClockBase extends EventEmitter {
    * @returns {number} corresponding time of the parent clock, or <tt>NaN</tt> if this is not possible.
    * @abstract
    */
-  toParentTime(t: number): number {
-    throw "Unimplemented";
+  toParentTime(_t: number): number {
+    throw 'Unimplemented';
   }
 
   /**
@@ -474,8 +481,8 @@ export default class ClockBase extends EventEmitter {
    * @returns {number} corresponding time of this clock.
    * @abstract
    */
-  fromParentTime(t: number): number {
-    throw "Unimplemented";
+  fromParentTime(_t: number): number {
+    throw 'Unimplemented';
   }
 
   /**
@@ -484,7 +491,7 @@ export default class ClockBase extends EventEmitter {
    * @abstract
    */
   getParent(): ClockBase | null {
-    throw "Unimplemented";
+    throw 'Unimplemented';
   }
 
   /**
@@ -494,8 +501,8 @@ export default class ClockBase extends EventEmitter {
    * @abstract
    * @event change
    */
-  setParent(newParent: ClockBase | null): void {
-    throw "Unimplemented";
+  setParent(_newParent: ClockBase | null): void {
+    throw 'Unimplemented';
   }
 
   /**
@@ -559,8 +566,8 @@ export default class ClockBase extends EventEmitter {
    *
    * @abstract
    */
-  _errorAtTime(t: number): number {
-    throw "Unimplemented";
+  _errorAtTime(_t: number): number {
+    throw 'Unimplemented';
   }
 
   /**
@@ -575,7 +582,7 @@ export default class ClockBase extends EventEmitter {
   getRootMaxFreqError(): number {
     const root = this.getRoot();
     if (root === this) {
-      throw "Unimplemented";
+      throw 'Unimplemented';
     } else {
       return root.getRootMaxFreqError();
     }
@@ -617,8 +624,9 @@ export default class ClockBase extends EventEmitter {
    * @returns A handle for the timer. Pass this handle to [clearTimeout]{@link ClockBase#clearTimeout} to cancel this timer callback.
    */
   setAtTime(func: (...args: any[]) => void, when: number, ...args: any[]): TimerHandle {
+    // oxlint-disable-next-line no-this-alias
     const self = this;
-    const handle: TimerHandle = self.id + ":timeout-" + nextTimeoutHandle++;
+    const handle: TimerHandle = self.id + ':timeout-' + nextTimeoutHandle++;
     let root = self.getRoot();
 
     if (root === null) {

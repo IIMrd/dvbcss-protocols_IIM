@@ -17,7 +17,7 @@
  * Summary of parts containing contributions
  *   by British Broadcasting Corporation (BBC):
  *     TSSetupMessage.deserialise : arraybuffer coercion
-*****************************************************************************/
+ *****************************************************************************/
 
 /**
  * @memberof dvbcss-protocols.TimelineSynchronisation
@@ -25,33 +25,33 @@
  * Object representing the setup message for the timeline synchronistation protocol that is sent from the client to the server initially. See ETSI TS XXX
  */
 export class TSSetupMessage {
-    public contentIdStem: string;
-    public timelineSelector: string;
+  public contentIdStem: string;
+  public timelineSelector: string;
 
-    /**
-     * @param contentIdStem is a string value consisting of a CI stem.
-     * @param timelineSelector is a string value consisting of a URI that indicates which Synchronisation Timeline is to be used for Timestamps.
-     */
-    constructor(contentIdStem: string, timelineSelector: string) {
-        this.contentIdStem = contentIdStem;
-        this.timelineSelector = timelineSelector;
+  /**
+   * @param contentIdStem is a string value consisting of a CI stem.
+   * @param timelineSelector is a string value consisting of a URI that indicates which Synchronisation Timeline is to be used for Timestamps.
+   */
+  constructor(contentIdStem: string, timelineSelector: string) {
+    this.contentIdStem = contentIdStem;
+    this.timelineSelector = timelineSelector;
 
-        if (typeof contentIdStem !== "string" || typeof timelineSelector !== "string") {
-            throw "TSSetupMessage(): Invalid parameters.";
-        }
+    if (typeof contentIdStem !== 'string' || typeof timelineSelector !== 'string') {
+      throw 'TSSetupMessage(): Invalid parameters.';
     }
+  }
 
-    public serialise(): string {
-        return JSON.stringify(this);
+  public serialise(): string {
+    return JSON.stringify(this);
+  }
+
+  public static deserialise(jsonVal: string | ArrayBuffer): TSSetupMessage {
+    // coerce from arraybuffer,if needed
+    if (jsonVal instanceof ArrayBuffer) {
+      jsonVal = String.fromCharCode.apply(null, new Uint8Array(jsonVal) as any);
     }
+    const o = JSON.parse(jsonVal as string);
 
-    public static deserialise(jsonVal: string | ArrayBuffer): TSSetupMessage {
-        // coerce from arraybuffer,if needed
-        if (jsonVal instanceof ArrayBuffer) {
-            jsonVal = String.fromCharCode.apply(null, new Uint8Array(jsonVal) as any);
-        }
-        const o = JSON.parse(jsonVal as string);
-
-        return new TSSetupMessage(o.contentIdStem, o.timelineSelector);
-    }
+    return new TSSetupMessage(o.contentIdStem, o.timelineSelector);
+  }
 }

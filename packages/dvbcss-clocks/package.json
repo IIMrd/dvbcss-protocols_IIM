@@ -2,19 +2,17 @@
   "name": "@iimrd/dvbcss-clocks",
   "version": "0.1.6",
   "description": "Javascript library implementing clock objects for modelling timelines. Useful in DVB CSS implementations.",
-  "type": "module",
   "keywords": [
+    "clock",
+    "correlation",
     "dvb",
     "dvbcss",
-    "clock",
-    "time",
-    "timing",
-    "timelines",
     "hierarchy",
-    "correlation"
+    "time",
+    "timelines",
+    "timing"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "license": "Apache-2.0",
   "files": [
     "src/**/*.ts",
     "AUTHORS",
@@ -22,7 +20,12 @@
     "README.md",
     "dist"
   ],
-  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "scripts": {
+    "build": "vp pack"
+  },
   "dependencies": {
     "eventemitter3": "^5.0.1"
   }
