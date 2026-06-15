@@ -33,28 +33,36 @@ This library has similarities to the protocol components in [pydvbcss](https://g
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18
-- [pnpm](https://pnpm.io/) >= 9
+- [Vite+](https://viteplus.dev/guide/)
 
 ### Install and build
 
 ```sh
 git clone https://github.com/IIMrd/dvbcss-protocols.git
 cd dvbcss-protocols
-pnpm install
-pnpm build
+vp install
+vp run -r build
 ```
 
 ### Use in your own project
 
-Install the package(s) you need:
+These packages are not published to npm. Link the local builds instead:
 
 ```sh
+# 1. Build the packages (from the dvbcss-protocols directory)
+vp run -r build
+
+# 2. Register the packages globally for linking
+vp link ./packages/dvbcss-clocks
+vp link ./packages/dvbcss-node
+vp link ./packages/dvbcss-browser
+
+# 3. In your own project, link the packages you need:
 # For Node.js applications
-pnpm add @iimrd/dvbcss-clocks @iimrd/dvbcss-node
+vp link @iimrd/dvbcss-clocks @iimrd/dvbcss-node
 
 # For browser applications
-pnpm add @iimrd/dvbcss-clocks @iimrd/dvbcss-browser
+vp link @iimrd/dvbcss-clocks @iimrd/dvbcss-browser
 ```
 
 ### Run the examples
@@ -91,7 +99,7 @@ ws.close();
 API documentation is generated with [TypeDoc](https://typedoc.org/):
 
 ```sh
-pnpm doc
+vp run doc
 ```
 
 Output is written to the `docs/` directory.
@@ -101,7 +109,7 @@ Output is written to the `docs/` directory.
 Unit tests use [Vitest](https://vitest.dev/):
 
 ```sh
-pnpm test
+vp test
 ```
 
 ## Super-quick introduction to the protocols
